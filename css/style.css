@@ -420,6 +420,82 @@ img { display: block; max-width: 100%; }
   padding: 8px 14px;
 }
 
+/* ── EXTENDED PHOTO GALLERY ── */
+.space-gallery { background: var(--dark); }
+.space-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.space-gallery-card {
+  min-height: 300px;
+  overflow: hidden;
+  position: relative;
+  margin: 0;
+  background: var(--dark-3);
+}
+.space-gallery-card--wide { grid-column: span 2; min-height: 360px; }
+.space-gallery-card img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease, opacity 0.4s ease;
+}
+.space-gallery-card:hover img { transform: scale(1.05); opacity: 0.85; }
+.space-gallery-card figcaption {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 40px 18px 16px;
+  background: linear-gradient(to top, rgba(14,12,10,0.92), transparent);
+  color: var(--gold-light);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.space-gallery-card--logo {
+  background: #050505;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.space-gallery-card--logo img { object-fit: contain; }
+.space-gallery-card--instagram {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 24px;
+  color: var(--warm-white);
+  background:
+    radial-gradient(circle at 82% 12%, rgba(244, 172, 77, 0.35), transparent 35%),
+    radial-gradient(circle at 12% 94%, rgba(168, 52, 150, 0.42), transparent 45%),
+    #1d1322;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.space-gallery-card--instagram:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3);
+}
+.instagram-card-icon { color: var(--gold-light); font-size: 2.5rem; line-height: 1; margin-bottom: auto; }
+.instagram-card-eyebrow {
+  color: var(--gold-light);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.instagram-card-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.15;
+}
+
+@media (max-width: 768px) {
+  .space-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .space-gallery-card, .space-gallery-card--wide { min-height: 220px; grid-column: span 1; }
+  .space-gallery-card--wide { grid-column: span 2; min-height: 260px; }
+  .space-gallery-card figcaption { padding: 32px 12px 12px; font-size: 0.58rem; }
+}
+
 /* ── TESTIMONIALS ── */
 .testimonials { background: var(--dark); }
 .testimonials-grid {
