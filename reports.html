@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanvila — Daily Service & Sales Report</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --forest:#152922; --sand:#EEE7D8; --cream:#FBF8F1;
+    --gold:#B08D57; --gold-light:#CBA96E; --charcoal:#22221E;
+    --charcoal-soft:#4A4A44; --line:#E2D9C4; --danger:#8a2c22;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--sand);color:var(--charcoal);font-family:Inter,system-ui,sans-serif;}
+  header{background:var(--forest);color:var(--sand);padding:22px 24px;}
+  .wrap{max-width:1040px;margin:0 auto;}
+  header .row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-light);margin-bottom:4px;}
+  .title{font-size:22px;font-weight:600;}
+  nav{display:flex;gap:8px;}
+  nav button{padding:9px 16px;border-radius:4px;border:1px solid rgba(203,169,110,.35);background:transparent;color:var(--sand);font-size:14px;cursor:pointer;}
+  nav button.active{background:var(--gold);color:var(--cream);border-color:var(--gold);}
+  main{max-width:1040px;margin:0 auto;padding:32px 24px 60px;}
+  .card{background:var(--cream);border:1px solid var(--line);border-radius:4px;padding:24px;}
+  .btn{padding:9px 18px;border-radius:4px;border:none;background:var(--gold);color:var(--cream);font-size:14px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+  .btn.outline{background:transparent;border:1px solid var(--line);color:var(--charcoal-soft);}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:24px;}
+  .filters button{padding:6px 14px;border-radius:4px;border:1px solid var(--line);background:var(--cream);font-size:13px;cursor:pointer;}
+  .filters button.active{background:var(--forest);color:var(--sand);border-color:var(--forest);}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px;}
+  .stat{border-radius:4px;padding:18px;border:1px solid var(--line);}
+  .stat.accent{background:var(--forest);color:var(--sand);border-color:var(--forest);}
+  .stat .label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--charcoal-soft);margin-bottom:8px;}
+  .stat.accent .label{color:var(--gold-light);}
+  .stat .value{font-size:24px;font-weight:600;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{background:var(--forest);color:var(--sand);text-align:left;padding:11px 14px;font-size:12px;font-weight:500;}
+  td{padding:10px 14px;border-top:1px solid var(--line);}
+  tr:nth-child(even) td{background:var(--sand);}
+  .bar-row{margin-bottom:14px;}
+  .bar-head{display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px;}
+  .bar-bg{height:8px;background:var(--sand);border-radius:4px;overflow:hidden;}
+  .bar-fill{height:100%;background:var(--gold);}
+  form.entry{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:640px;}
+  form.entry label{font-size:12px;color:var(--charcoal-soft);display:block;margin-bottom:5px;}
+  form.entry input,form.entry select{width:100%;border:1px solid var(--line);border-radius:4px;padding:9px 11px;font-size:14px;background:#fff;font-family:inherit;}
+  .full{grid-column:1/-1;}
+  .error{color:var(--danger);font-size:13px;margin-bottom:10px;}
+  .empty{color:var(--charcoal-soft);font-size:14px;padding:20px 0;}
+  #gate{position:fixed;inset:0;background:var(--forest);color:var(--sand);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:50;}
+  #gate input{padding:10px 14px;border-radius:4px;border:1px solid var(--gold-light);font-size:15px;width:220px;}
+  #gate .err{color:#e8a99c;font-size:13px;height:16px;}
+  .toolbar{display:flex;justify-content:flex-end;padding:14px 18px;border-bottom:1px solid var(--line);}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="eyebrow">Sanvila · Staff login</div>
+  <div style="font-size:19px;font-family:Georgia,serif;">Sign in to continue</div>
+  <input id="gateEmail" type="email" placeholder="Email" autocomplete="username" />
+  <input id="gateInput" type="password" placeholder="Password" autocomplete="current-password" />
+  <button class="btn" onclick="checkGate()">Sign in</button>
+  <div class="err" id="gateErr"></div>
+</div>
+
+<div id="app" style="display:none;">
+  <header>
+    <div class="wrap row">
+      <div>
+        <div class="eyebrow">Sanvila</div>
+        <div class="title">Daily Service &amp; Sales Report</div>
+      </div>
+      <nav>
+        <button id="tab-report" class="active" onclick="setTab('report')">Report</button>
+        <button id="tab-add" onclick="setTab('add')">Add Entry</button>
+        <button id="tab-all" onclick="setTab('all')">All Entries</button>
+        <button onclick="signOut()" style="border-color:rgba(203,169,110,.35);">Sign out</button>
+      </nav>
+    </div>
+  </header>
+  <main class="wrap" id="main"></main>
+</div>
+
+<script>
+// ====== CONFIGURE THESE TWO LINES AFTER YOU CREATE YOUR SUPABASE PROJECT ======
+const SUPABASE_URL = "https://wpcsicdciphkzikattpj.supabase.co/rest/v1/";
+const SUPABASE_ANON_KEY = "sb_publishable_L4DeQhecb4ad6i8ltYG6Bw_9HfFF6r2";
+// Staff accounts are created by you in Supabase → Authentication → Users.
+// There is no public sign-up on this page — only accounts you create can log in.
+// ================================================================================
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function checkGate(){
+  const email = document.getElementById('gateEmail').value.trim();
+  const password = document.getElementById('gateInput').value;
+  const errEl = document.getElementById('gateErr');
+  errEl.textContent = '';
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if(error){ errEl.textContent = 'Incorrect email or password.'; return; }
+  showApp();
+}
+
+async function signOut(){
+  await sb.auth.signOut();
+  document.getElementById('gate').style.display='flex';
+  document.getElementById('app').style.display='none';
+}
+
+function showApp(){
+  document.getElementById('gate').style.display='none';
+  document.getElementById('app').style.display='block';
+  init();
+}
+
+// If already signed in from a previous visit, skip straight to the app.
+sb.auth.getSession().then(({ data }) => {
+  if (data.session) showApp();
+});
+
+let entries = [];
+let tab = 'report';
+let rangeMode = 'today';
+let customStart = todayISO();
+let customEnd = todayISO();
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function displayDate(iso){ if(!iso) return '—'; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
+function inRange(iso,start,end){ if(start && iso<start) return false; if(end && iso>end) return false; return true; }
+function money(n){ return '₹' + Number(n||0).toLocaleString('en-IN'); }
+
+async function init(){
+  await loadEntries();
+  render();
+}
+
+async function loadEntries(){
+  const { data, error } = await sb.from('service_entries').select('*').order('date',{ascending:false});
+  if(error){ alert('Could not load data: ' + error.message); return; }
+  entries = data || [];
+}
+
+function getRange(){
+  const t = todayISO();
+  if(rangeMode==='today') return {start:t,end:t};
+  if(rangeMode==='7days'){ const d=new Date(); d.setDate(d.getDate()-6); return {start:d.toISOString().slice(0,10),end:t}; }
+  if(rangeMode==='month'){ const d=new Date(); const first=new Date(d.getFullYear(),d.getMonth(),1).toISOString().slice(0,10); return {start:first,end:t}; }
+  if(rangeMode==='custom') return {start:customStart,end:customEnd};
+  return {start:null,end:null};
+}
+
+function setTab(t){ tab=t; render(); }
+function setRange(r){ rangeMode=r; render(); }
+
+function computeReport(){
+  const {start,end} = getRange();
+  const filtered = entries.filter(e => inRange(e.date,start,end));
+  const map = {};
+  filtered.forEach(e=>{
+    const key = e.employee || 'Unassigned';
+    if(!map[key]) map[key] = {employee:key,role:e.role,count:0,revenue:0,cash:0,upi:0,other:0};
+    map[key].count++;
+    const amt = Number(e.amount)||0;
+    map[key].revenue += amt;
+    if(e.payment==='Cash') map[key].cash += amt;
+    else if(e.payment==='UPI') map[key].upi += amt;
+    else map[key].other += amt;
+  });
+  const byEmployee = Object.values(map).sort((a,b)=>b.revenue-a.revenue);
+  const totals = byEmployee.reduce((a,r)=>({count:a.count+r.count,revenue:a.revenue+r.revenue,cash:a.cash+r.cash,upi:a.upi+r.upi,other:a.other+r.other}),{count:0,revenue:0,cash:0,upi:0,other:0});
+  return {start,end,byEmployee,totals};
+}
+
+function render(){
+  ['report','add','all'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active', t===tab));
+  const main = document.getElementById('main');
+  if(tab==='report') main.innerHTML = renderReport();
+  else if(tab==='add') main.innerHTML = renderAdd();
+  else main.innerHTML = renderAll();
+}
+
+function renderReport(){
+  const {start,end,byEmployee,totals} = computeReport();
+  const maxRev = Math.max(1, ...byEmployee.map(r=>r.revenue));
+  const filterBtns = [['today','Today'],['7days','Last 7 days'],['month','This month'],['all','All time'],['custom','Custom']]
+    .map(([k,l])=>`<button class="${rangeMode===k?'active':''}" onclick="setRange('${k}')">${l}</button>`).join('');
+  const customPicker = rangeMode==='custom' ? `
+    <input type="date" value="${customStart}" onchange="customStart=this.value;render()" style="padding:6px 8px;border:1px solid var(--line);border-radius:4px;">
+    <span style="font-size:13px;color:var(--charcoal-soft);">to</span>
+    <input type="date" value="${customEnd}" onchange="customEnd=this.value;render()" style="padding:6px 8px;border:1px solid var(--line);border-radius:4px;">
+  ` : '';
+  const rangeLabel = start ? `${displayDate(start)} – ${displayDate(end)}` : 'All recorded dates';
+
+  const bars = byEmployee.length===0 ? `<div class="empty">No services recorded for this period yet. Add one from the "Add Entry" tab.</div>` :
+    byEmployee.map(r=>`
+      <div class="bar-row">
+        <div class="bar-head">
+          <span><strong>${esc(r.employee)}</strong> <span style="font-size:12px;color:var(--charcoal-soft);">(${esc(r.role||'')})</span></span>
+          <span style="color:var(--charcoal-soft);">${r.count} service${r.count!==1?'s':''} · ${money(r.revenue)}</span>
+        </div>
+        <div class="bar-bg"><div class="bar-fill" style="width:${(r.revenue/maxRev)*100}%"></div></div>
+        <div style="font-size:11px;color:var(--charcoal-soft);margin-top:4px;">Cash ${money(r.cash)} · UPI ${money(r.upi)}${r.other?` · Other ${money(r.other)}`:''}</div>
+      </div>`).join('');
+
+  const rows = byEmployee.map((r,i)=>`
+    <tr><td>${esc(r.employee)}</td><td>${esc(r.role||'')}</td><td style="text-align:right;">${r.count}</td>
+    <td style="text-align:right;">${money(r.cash)}</td><td style="text-align:right;">${money(r.upi)}</td>
+    <td style="text-align:right;font-weight:600;">${money(r.revenue)}</td></tr>`).join('');
+  const totalRow = byEmployee.length ? `<tr style="background:var(--forest);color:var(--sand);font-weight:600;">
+    <td colspan="2">Total</td><td style="text-align:right;">${totals.count}</td>
+    <td style="text-align:right;">${money(totals.cash)}</td><td style="text-align:right;">${money(totals.upi)}</td>
+    <td style="text-align:right;">${money(totals.revenue)}</td></tr>` : '';
+
+  return `
+    <div class="filters">
+      ${filterBtns}${customPicker}
+      <div style="margin-left:auto;display:flex;align-items:center;gap:14px;">
+        <span style="font-size:12px;color:var(--charcoal-soft);">${rangeLabel}</span>
+        <button class="btn" onclick="downloadSummary()">Download report</button>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat accent"><div class="label">Total Revenue</div><div class="value">${money(totals.revenue)}</div></div>
+      <div class="stat"><div class="label">Services Done</div><div class="value">${totals.count}</div></div>
+      <div class="stat"><div class="label">Cash Collected</div><div class="value">${money(totals.cash)}</div></div>
+      <div class="stat"><div class="label">UPI Collected</div><div class="value">${money(totals.upi)}</div></div>
+    </div>
+    <div class="card" style="margin-bottom:24px;">
+      <div style="font-family:Georgia,serif;font-size:18px;margin-bottom:18px;">Revenue by employee</div>
+      ${bars}
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table><thead><tr><th>Employee</th><th>Role</th><th style="text-align:right;">Services</th><th style="text-align:right;">Cash</th><th style="text-align:right;">UPI</th><th style="text-align:right;">Total Revenue</th></tr></thead>
+      <tbody>${rows}${totalRow}</tbody></table>
+    </div>`;
+}
+
+function renderAdd(){
+  return `
+    <div class="card" style="max-width:640px;">
+      <div style="font-family:Georgia,serif;font-size:18px;margin-bottom:20px;">Add today's entry</div>
+      <div id="formError" class="error"></div>
+      <form class="entry" onsubmit="return submitEntry(event)">
+        <div><label>Date</label><input type="date" id="f_date" value="${todayISO()}"></div>
+        <div><label>Client name</label><input type="text" id="f_name" placeholder="e.g. Client"></div>
+        <div><label>Client number (optional)</label><input type="text" id="f_number"></div>
+        <div><label>Service category</label><input type="text" id="f_type" placeholder="e.g. Body spa, threading" value="Body spa"></div>
+        <div><label>Service type</label><input type="text" id="f_serviceType" placeholder="e.g. Oil Message, Wax"></div>
+        <div><label>Employee *</label><input type="text" id="f_employee" list="empList">
+          <datalist id="empList">${[...new Set(entries.map(e=>e.employee).filter(Boolean))].map(e=>`<option value="${esc(e)}">`).join('')}</datalist>
+        </div>
+        <div><label>Role</label><input type="text" id="f_role" list="roleList" value="Therapist">
+          <datalist id="roleList">${[...new Set(entries.map(e=>e.role).filter(Boolean))].map(r=>`<option value="${esc(r)}">`).join('')}</datalist>
+        </div>
+        <div><label>Amount received (₹) *</label><input type="number" min="0" id="f_amount"></div>
+        <div><label>Payment mode</label>
+          <select id="f_payment"><option>Cash</option><option>UPI</option><option>Other</option></select>
+        </div>
+        <div><label>Counter payment (optional)</label><input type="number" min="0" id="f_counter"></div>
+        <div class="full"><button type="submit" class="btn">Save entry</button></div>
+      </form>
+    </div>`;
+}
+
+function renderAll(){
+  const sorted = [...entries].sort((a,b)=> a.date<b.date?1:a.date>b.date?-1:0);
+  const rows = sorted.map(e=>`
+    <tr><td>${displayDate(e.date)}</td><td>${esc(e.name||'')}${e.number?` · ${esc(e.number)}`:''}</td>
+    <td>${esc(e.type||'')}${e.service_type?` — ${esc(e.service_type)}`:''}</td>
+    <td>${esc(e.employee||'')}</td><td>${esc(e.role||'')}</td>
+    <td style="text-align:right;">${money(e.amount)}</td><td>${esc(e.payment||'')}</td>
+    <td><button onclick="deleteEntry('${e.id}')" style="border:none;background:none;color:var(--danger);cursor:pointer;">Delete</button></td></tr>`).join('');
+  return `
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="toolbar"><button class="btn" onclick="downloadRaw()">Download all entries</button></div>
+      <div style="overflow-x:auto;">
+        <table><thead><tr><th>Date</th><th>Client</th><th>Service</th><th>Employee</th><th>Role</th><th style="text-align:right;">Amount</th><th>Mode</th><th></th></tr></thead>
+        <tbody>${rows}</tbody></table>
+      </div>
+    </div>`;
+}
+
+async function submitEntry(ev){
+  ev.preventDefault();
+  const employee = document.getElementById('f_employee').value.trim();
+  const amount = document.getElementById('f_amount').value;
+  const errEl = document.getElementById('formError');
+  errEl.textContent = '';
+  if(!employee){ errEl.textContent = 'Employee name is required.'; return false; }
+  if(amount === '' || Number(amount) < 0){ errEl.textContent = 'Enter a valid amount.'; return false; }
+  const entry = {
+    date: document.getElementById('f_date').value,
+    name: document.getElementById('f_name').value.trim() || 'Client',
+    number: document.getElementById('f_number').value.trim(),
+    type: document.getElementById('f_type').value.trim(),
+    service_type: document.getElementById('f_serviceType').value.trim(),
+    employee, role: document.getElementById('f_role').value.trim() || 'Therapist',
+    amount: Number(amount),
+    payment: document.getElementById('f_payment').value,
+    counter: Number(document.getElementById('f_counter').value || 0),
+  };
+  const { error } = await sb.from('service_entries').insert([entry]);
+  if(error){ errEl.textContent = 'Could not save: ' + error.message; return false; }
+  await loadEntries();
+  tab = 'report';
+  render();
+  return false;
+}
+
+async function deleteEntry(id){
+  if(!confirm('Delete this entry?')) return;
+  const { error } = await sb.from('service_entries').delete().eq('id', id);
+  if(error){ alert('Could not delete: ' + error.message); return; }
+  await loadEntries();
+  render();
+}
+
+function toCSV(headers, rows){
+  const esc2 = v => { const s = String(v??''); return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; };
+  return [headers.map(esc2).join(','), ...rows.map(r=>r.map(esc2).join(','))].join('\n');
+}
+function downloadCSV(filename, csv){
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+function downloadSummary(){
+  const {byEmployee,totals} = computeReport();
+  const headers = ['Employee','Role','Services','Cash','UPI','Other','Total Revenue'];
+  const rows = byEmployee.map(r=>[r.employee,r.role,r.count,r.cash,r.upi,r.other,r.revenue]);
+  rows.push(['Total','',totals.count,totals.cash,totals.upi,totals.other,totals.revenue]);
+  downloadCSV(`sanvila-report-${rangeMode}-${todayISO()}.csv`, toCSV(headers, rows));
+}
+function downloadRaw(){
+  const sorted = [...entries].sort((a,b)=> a.date<b.date?1:a.date>b.date?-1:0);
+  const headers = ['Date','Client Name','Number','Type','Service Type','Employee','Role','Amount','Payment Mode','Counter Payment'];
+  const rows = sorted.map(e=>[displayDate(e.date),e.name,e.number,e.type,e.service_type,e.employee,e.role,e.amount,e.payment,e.counter]);
+  downloadCSV(`sanvila-all-entries-${todayISO()}.csv`, toCSV(headers, rows));
+}
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+</script>
+</body>
+</html>
