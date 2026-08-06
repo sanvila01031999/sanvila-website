@@ -28,7 +28,7 @@
   .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:24px;}
   .filter-btn{padding:6px 14px;border-radius:4px;border:1px solid var(--line);background:var(--cream);font-size:13px;cursor:pointer;color:var(--charcoal);}
   .filter-btn.active{background:var(--forest);color:var(--sand);border-color:var(--forest);}
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px;}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:32px;}
   .stat{border-radius:4px;padding:18px;border:1px solid var(--line);}
   .stat.accent{background:var(--forest);color:var(--sand);border-color:var(--forest);}
   .stat .label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--charcoal-soft);margin-bottom:8px;}
@@ -52,6 +52,10 @@
   #gate input{padding:10px 14px;border-radius:4px;border:1px solid var(--gold-light);font-size:15px;width:220px;}
   #gate .err{color:#e8a99c;font-size:13px;height:16px;}
   .toolbar{display:flex;justify-content:flex-end;padding:14px 18px;border-bottom:1px solid var(--line);}
+  .field-group{transition:opacity .15s ease;}
+  .field-group.dimmed{opacity:.35;}
+  .field-group.dimmed input,.field-group.dimmed select{background:#EFEAE0;cursor:not-allowed;}
+  .counter-note{grid-column:1/-1;background:rgba(176,141,87,.12);border:1px solid rgba(176,141,87,.3);border-radius:4px;padding:10px 12px;font-size:12.5px;color:var(--charcoal-soft);margin-bottom:4px;}
 </style>
 </head>
 <body>
@@ -160,16 +164,17 @@ function computeReport(){
   const map = {};
   filtered.forEach(e=>{
     const key = e.employee || 'Unassigned';
-    if(!map[key]) map[key] = {employee:key,role:e.role,count:0,revenue:0,cash:0,upi:0,other:0};
+    if(!map[key]) map[key] = {employee:key,role:e.role,count:0,revenue:0,cash:0,upi:0,counterPay:0,other:0};
     map[key].count++;
     const amt = Number(e.amount)||0;
     map[key].revenue += amt;
     if(e.payment==='Cash') map[key].cash += amt;
     else if(e.payment==='UPI') map[key].upi += amt;
+    else if(e.payment==='Counter') map[key].counterPay += amt;
     else map[key].other += amt;
   });
   const byEmployee = Object.values(map).sort((a,b)=>b.revenue-a.revenue);
-  const totals = byEmployee.reduce((a,r)=>({count:a.count+r.count,revenue:a.revenue+r.revenue,cash:a.cash+r.cash,upi:a.upi+r.upi,other:a.other+r.other}),{count:0,revenue:0,cash:0,upi:0,other:0});
+  const totals = byEmployee.reduce((a,r)=>({count:a.count+r.count,revenue:a.revenue+r.revenue,cash:a.cash+r.cash,upi:a.upi+r.upi,counterPay:a.counterPay+r.counterPay,other:a.other+r.other}),{count:0,revenue:0,cash:0,upi:0,counterPay:0,other:0});
   return {start,end,byEmployee,totals};
 }
 
@@ -177,8 +182,20 @@ function render(){
   ['report','add','all'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active', t===tab));
   const main = document.getElementById('main');
   if(tab==='report') main.innerHTML = renderReport();
-  else if(tab==='add') main.innerHTML = renderAdd();
+  else if(tab==='add'){ main.innerHTML = renderAdd(); toggleCounterMode(); }
   else main.innerHTML = renderAll();
+}
+
+function toggleCounterMode(){
+  const paymentEl = document.getElementById('f_payment');
+  if(!paymentEl) return;
+  const isCounter = paymentEl.value === 'Counter';
+  const note = document.getElementById('counterNote');
+  if(note) note.style.display = isCounter ? 'block' : 'none';
+  document.querySelectorAll('.field-group').forEach(group => {
+    group.classList.toggle('dimmed', isCounter);
+    group.querySelectorAll('input,select').forEach(el => { el.disabled = isCounter; });
+  });
 }
 
 function renderReport(){
@@ -201,16 +218,18 @@ function renderReport(){
           <span style="color:var(--charcoal-soft);">${r.count} service${r.count!==1?'s':''} · ${money(r.revenue)}</span>
         </div>
         <div class="bar-bg"><div class="bar-fill" style="width:${(r.revenue/maxRev)*100}%"></div></div>
-        <div style="font-size:11px;color:var(--charcoal-soft);margin-top:4px;">Cash ${money(r.cash)} · UPI ${money(r.upi)}${r.other?` · Other ${money(r.other)}`:''}</div>
+        <div style="font-size:11px;color:var(--charcoal-soft);margin-top:4px;">Cash ${money(r.cash)} · UPI ${money(r.upi)}${r.counterPay?` · Counter ${money(r.counterPay)}`:''}${r.other?` · Other ${money(r.other)}`:''}</div>
       </div>`).join('');
 
   const rows = byEmployee.map((r,i)=>`
     <tr><td>${esc(r.employee)}</td><td>${esc(r.role||'')}</td><td style="text-align:right;">${r.count}</td>
     <td style="text-align:right;">${money(r.cash)}</td><td style="text-align:right;">${money(r.upi)}</td>
+    <td style="text-align:right;">${money(r.counterPay)}</td>
     <td style="text-align:right;font-weight:600;">${money(r.revenue)}</td></tr>`).join('');
   const totalRow = byEmployee.length ? `<tr style="background:var(--forest);color:var(--sand);font-weight:600;">
     <td colspan="2">Total</td><td style="text-align:right;">${totals.count}</td>
     <td style="text-align:right;">${money(totals.cash)}</td><td style="text-align:right;">${money(totals.upi)}</td>
+    <td style="text-align:right;">${money(totals.counterPay)}</td>
     <td style="text-align:right;">${money(totals.revenue)}</td></tr>` : '';
 
   return `
@@ -226,13 +245,14 @@ function renderReport(){
       <div class="stat"><div class="label">Services Done</div><div class="value">${totals.count}</div></div>
       <div class="stat"><div class="label">Cash Collected</div><div class="value">${money(totals.cash)}</div></div>
       <div class="stat"><div class="label">UPI Collected</div><div class="value">${money(totals.upi)}</div></div>
+      <div class="stat"><div class="label">Counter Collected</div><div class="value">${money(totals.counterPay)}</div></div>
     </div>
     <div class="card" style="margin-bottom:24px;">
       <div style="font-family:Georgia,serif;font-size:18px;margin-bottom:18px;">Revenue by employee</div>
       ${bars}
     </div>
     <div class="card" style="padding:0;overflow:hidden;">
-      <table><thead><tr><th>Employee</th><th>Role</th><th style="text-align:right;">Services</th><th style="text-align:right;">Cash</th><th style="text-align:right;">UPI</th><th style="text-align:right;">Total Revenue</th></tr></thead>
+      <table><thead><tr><th>Employee</th><th>Role</th><th style="text-align:right;">Services</th><th style="text-align:right;">Cash</th><th style="text-align:right;">UPI</th><th style="text-align:right;">Counter</th><th style="text-align:right;">Total Revenue</th></tr></thead>
       <tbody>${rows}${totalRow}</tbody></table>
     </div>`;
 }
@@ -251,31 +271,33 @@ function renderAdd(){
       <div id="formError" class="error"></div>
       <form class="entry" onsubmit="return submitEntry(event)">
         <div><label>Date</label><input type="date" id="f_date" value="${v.date}"></div>
-        <div><label>Client name</label><input type="text" id="f_name" placeholder="e.g. Client" value="${esc(v.name||'')}"></div>
-        <div><label>Client number (optional)</label><input type="text" id="f_number" value="${esc(v.number||'')}"></div>
-        <div><label>Service category</label><input type="text" id="f_type" placeholder="e.g. Body spa, threading" value="${esc(v.type||'Body spa')}"></div>
-        <div><label>Service type</label>
+        <div><label>Employee / Therapist *</label><input type="text" id="f_employee" list="empList" value="${esc(v.employee||'')}">
+          <datalist id="empList">${[...new Set(entries.map(e=>e.employee).filter(Boolean))].map(e=>`<option value="${esc(e)}">`).join('')}</datalist>
+        </div>
+        <div><label>Amount received (₹) *</label><input type="number" min="0" id="f_amount" value="${v.amount===''?'':Number(v.amount)}"></div>
+        <div><label>Payment mode</label>
+          <select id="f_payment" onchange="toggleCounterMode()">
+            <option value="Cash" ${v.payment==='Cash'?'selected':''}>Cash</option>
+            <option value="UPI" ${v.payment==='UPI'?'selected':''}>UPI</option>
+            <option value="Counter" ${v.payment==='Counter'?'selected':''}>Counter Payment</option>
+            <option value="Other" ${v.payment==='Other'?'selected':''}>Other</option>
+          </select>
+        </div>
+        <div class="counter-note" id="counterNote" style="display:none;">Counter payment entry — only date, employee and amount are needed. The fields below are dimmed and won't be saved.</div>
+        <div class="field-group full"><label>Client name</label><input type="text" id="f_name" placeholder="e.g. Client" value="${esc(v.name||'')}"></div>
+        <div class="field-group"><label>Client number (optional)</label><input type="text" id="f_number" value="${esc(v.number||'')}"></div>
+        <div class="field-group"><label>Service category</label><input type="text" id="f_type" placeholder="e.g. Body spa, threading" value="${esc(v.type||'Body spa')}"></div>
+        <div class="field-group"><label>Service type</label>
           <select id="f_serviceType">
             <option value="">— Select —</option>
             ${serviceOptions}
             ${currentNotListed ? `<option value="${esc(v.service_type)}" selected>${esc(v.service_type)} (other)</option>` : ''}
           </select>
         </div>
-        <div><label>Employee *</label><input type="text" id="f_employee" list="empList" value="${esc(v.employee||'')}">
-          <datalist id="empList">${[...new Set(entries.map(e=>e.employee).filter(Boolean))].map(e=>`<option value="${esc(e)}">`).join('')}</datalist>
-        </div>
-        <div><label>Role</label><input type="text" id="f_role" list="roleList" value="${esc(v.role||'Therapist')}">
+        <div class="field-group"><label>Role</label><input type="text" id="f_role" list="roleList" value="${esc(v.role||'Therapist')}">
           <datalist id="roleList">${[...new Set(entries.map(e=>e.role).filter(Boolean))].map(r=>`<option value="${esc(r)}">`).join('')}</datalist>
         </div>
-        <div><label>Amount received (₹) *</label><input type="number" min="0" id="f_amount" value="${v.amount===''?'':Number(v.amount)}"></div>
-        <div><label>Payment mode</label>
-          <select id="f_payment">
-            <option ${v.payment==='Cash'?'selected':''}>Cash</option>
-            <option ${v.payment==='UPI'?'selected':''}>UPI</option>
-            <option ${v.payment==='Other'?'selected':''}>Other</option>
-          </select>
-        </div>
-        <div><label>Counter payment (optional)</label><input type="number" min="0" id="f_counter" value="${v.counter===''?'':Number(v.counter)}"></div>
+        <div class="field-group"><label>Counter split (optional)</label><input type="number" min="0" id="f_counter" value="${v.counter===''?'':Number(v.counter)}"></div>
         <div class="full" style="display:flex;gap:10px;">
           <button type="submit" class="btn">${editing ? 'Update entry' : 'Save entry'}</button>
           ${editing ? `<button type="button" class="btn outline" onclick="cancelEdit()">Cancel</button>` : ''}
@@ -324,16 +346,18 @@ async function submitEntry(ev){
   errEl.textContent = '';
   if(!employee){ errEl.textContent = 'Employee name is required.'; return false; }
   if(amount === '' || Number(amount) < 0){ errEl.textContent = 'Enter a valid amount.'; return false; }
+  const payment = document.getElementById('f_payment').value;
+  const isCounter = payment === 'Counter';
   const entry = {
     date: document.getElementById('f_date').value,
-    name: document.getElementById('f_name').value.trim() || 'Client',
-    number: document.getElementById('f_number').value.trim(),
-    type: document.getElementById('f_type').value.trim(),
-    service_type: document.getElementById('f_serviceType').value.trim(),
+    name: isCounter ? 'Counter Payment' : (document.getElementById('f_name').value.trim() || 'Client'),
+    number: isCounter ? '' : document.getElementById('f_number').value.trim(),
+    type: isCounter ? 'Counter Payment' : document.getElementById('f_type').value.trim(),
+    service_type: isCounter ? '' : document.getElementById('f_serviceType').value.trim(),
     employee, role: document.getElementById('f_role').value.trim() || 'Therapist',
     amount: Number(amount),
-    payment: document.getElementById('f_payment').value,
-    counter: Number(document.getElementById('f_counter').value || 0),
+    payment,
+    counter: isCounter ? 0 : Number(document.getElementById('f_counter').value || 0),
   };
   let error;
   if(editingId){
@@ -369,9 +393,9 @@ function downloadCSV(filename, csv){
 }
 function downloadSummary(){
   const {byEmployee,totals} = computeReport();
-  const headers = ['Employee','Role','Services','Cash','UPI','Other','Total Revenue'];
-  const rows = byEmployee.map(r=>[r.employee,r.role,r.count,r.cash,r.upi,r.other,r.revenue]);
-  rows.push(['Total','',totals.count,totals.cash,totals.upi,totals.other,totals.revenue]);
+  const headers = ['Employee','Role','Services','Cash','UPI','Counter','Other','Total Revenue'];
+  const rows = byEmployee.map(r=>[r.employee,r.role,r.count,r.cash,r.upi,r.counterPay,r.other,r.revenue]);
+  rows.push(['Total','',totals.count,totals.cash,totals.upi,totals.counterPay,totals.other,totals.revenue]);
   downloadCSV(`sanvila-report-${rangeMode}-${todayISO()}.csv`, toCSV(headers, rows));
 }
 function downloadRaw(){
