@@ -26,8 +26,8 @@
   .btn{padding:9px 18px;border-radius:4px;border:none;background:var(--gold);color:var(--cream);font-size:14px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
   .btn.outline{background:transparent;border:1px solid var(--line);color:var(--charcoal-soft);}
   .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:24px;}
-  .filters button{padding:6px 14px;border-radius:4px;border:1px solid var(--line);background:var(--cream);font-size:13px;cursor:pointer;}
-  .filters button.active{background:var(--forest);color:var(--sand);border-color:var(--forest);}
+  .filter-btn{padding:6px 14px;border-radius:4px;border:1px solid var(--line);background:var(--cream);font-size:13px;cursor:pointer;color:var(--charcoal);}
+  .filter-btn.active{background:var(--forest);color:var(--sand);border-color:var(--forest);}
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px;}
   .stat{border-radius:4px;padding:18px;border:1px solid var(--line);}
   .stat.accent{background:var(--forest);color:var(--sand);border-color:var(--forest);}
@@ -85,8 +85,8 @@
 
 <script>
 // ====== CONFIGURE THESE TWO LINES AFTER YOU CREATE YOUR SUPABASE PROJECT ======
-const SUPABASE_URL = "https://wpcsicdciphkzikattpj.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_L4DeQhecb4ad6i8ltYG6Bw_9HfFF6r2";
+const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 // Staff accounts are created by you in Supabase → Authentication → Users.
 // There is no public sign-up on this page — only accounts you create can log in.
 // ================================================================================
@@ -151,7 +151,7 @@ function getRange(){
   return {start:null,end:null};
 }
 
-function setTab(t){ tab=t; render(); }
+function setTab(t){ tab=t; if(t!=='add') editingId=null; if(t==='add'){ editingId=null; } render(); }
 function setRange(r){ rangeMode=r; render(); }
 
 function computeReport(){
@@ -185,7 +185,7 @@ function renderReport(){
   const {start,end,byEmployee,totals} = computeReport();
   const maxRev = Math.max(1, ...byEmployee.map(r=>r.revenue));
   const filterBtns = [['today','Today'],['7days','Last 7 days'],['month','This month'],['all','All time'],['custom','Custom']]
-    .map(([k,l])=>`<button class="${rangeMode===k?'active':''}" onclick="setRange('${k}')">${l}</button>`).join('');
+    .map(([k,l])=>`<button class="filter-btn ${rangeMode===k?'active':''}" onclick="setRange('${k}')">${l}</button>`).join('');
   const customPicker = rangeMode==='custom' ? `
     <input type="date" value="${customStart}" onchange="customStart=this.value;render()" style="padding:6px 8px;border:1px solid var(--line);border-radius:4px;">
     <span style="font-size:13px;color:var(--charcoal-soft);">to</span>
@@ -216,10 +216,10 @@ function renderReport(){
   return `
     <div class="filters">
       ${filterBtns}${customPicker}
-      <div style="margin-left:auto;display:flex;align-items:center;gap:14px;">
-        <span style="font-size:12px;color:var(--charcoal-soft);">${rangeLabel}</span>
-        <button class="btn" onclick="downloadSummary()">Download report</button>
-      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;">
+      <span style="font-size:12px;color:var(--charcoal-soft);">${rangeLabel}</span>
+      <button class="btn" onclick="downloadSummary()">Download report</button>
     </div>
     <div class="stats">
       <div class="stat accent"><div class="label">Total Revenue</div><div class="value">${money(totals.revenue)}</div></div>
@@ -237,31 +237,62 @@ function renderReport(){
     </div>`;
 }
 
+const SERVICE_TYPES = ['Dry Massage','Aroma Massage','Swedish Massage','Deep Tissue Massage','Body Polishing','Cream Massage'];
+let editingId = null;
+
 function renderAdd(){
+  const editing = editingId ? entries.find(e => e.id === editingId) : null;
+  const v = editing || { date: todayISO(), name:'', number:'', type:'Body spa', service_type:'', employee:'', role:'Therapist', amount:'', payment:'Cash', counter:'' };
+  const serviceOptions = SERVICE_TYPES.map(s => `<option value="${esc(s)}" ${v.service_type===s?'selected':''}>${esc(s)}</option>`).join('');
+  const currentNotListed = v.service_type && !SERVICE_TYPES.includes(v.service_type);
   return `
     <div class="card" style="max-width:640px;">
-      <div style="font-family:Georgia,serif;font-size:18px;margin-bottom:20px;">Add today's entry</div>
+      <div style="font-family:Georgia,serif;font-size:18px;margin-bottom:20px;">${editing ? 'Edit entry' : "Add today's entry"}</div>
       <div id="formError" class="error"></div>
       <form class="entry" onsubmit="return submitEntry(event)">
-        <div><label>Date</label><input type="date" id="f_date" value="${todayISO()}"></div>
-        <div><label>Client name</label><input type="text" id="f_name" placeholder="e.g. Client"></div>
-        <div><label>Client number (optional)</label><input type="text" id="f_number"></div>
-        <div><label>Service category</label><input type="text" id="f_type" placeholder="e.g. Body spa, threading" value="Body spa"></div>
-        <div><label>Service type</label><input type="text" id="f_serviceType" placeholder="e.g. Oil Message, Wax"></div>
-        <div><label>Employee *</label><input type="text" id="f_employee" list="empList">
+        <div><label>Date</label><input type="date" id="f_date" value="${v.date}"></div>
+        <div><label>Client name</label><input type="text" id="f_name" placeholder="e.g. Client" value="${esc(v.name||'')}"></div>
+        <div><label>Client number (optional)</label><input type="text" id="f_number" value="${esc(v.number||'')}"></div>
+        <div><label>Service category</label><input type="text" id="f_type" placeholder="e.g. Body spa, threading" value="${esc(v.type||'Body spa')}"></div>
+        <div><label>Service type</label>
+          <select id="f_serviceType">
+            <option value="">— Select —</option>
+            ${serviceOptions}
+            ${currentNotListed ? `<option value="${esc(v.service_type)}" selected>${esc(v.service_type)} (other)</option>` : ''}
+          </select>
+        </div>
+        <div><label>Employee *</label><input type="text" id="f_employee" list="empList" value="${esc(v.employee||'')}">
           <datalist id="empList">${[...new Set(entries.map(e=>e.employee).filter(Boolean))].map(e=>`<option value="${esc(e)}">`).join('')}</datalist>
         </div>
-        <div><label>Role</label><input type="text" id="f_role" list="roleList" value="Therapist">
+        <div><label>Role</label><input type="text" id="f_role" list="roleList" value="${esc(v.role||'Therapist')}">
           <datalist id="roleList">${[...new Set(entries.map(e=>e.role).filter(Boolean))].map(r=>`<option value="${esc(r)}">`).join('')}</datalist>
         </div>
-        <div><label>Amount received (₹) *</label><input type="number" min="0" id="f_amount"></div>
+        <div><label>Amount received (₹) *</label><input type="number" min="0" id="f_amount" value="${v.amount===''?'':Number(v.amount)}"></div>
         <div><label>Payment mode</label>
-          <select id="f_payment"><option>Cash</option><option>UPI</option><option>Other</option></select>
+          <select id="f_payment">
+            <option ${v.payment==='Cash'?'selected':''}>Cash</option>
+            <option ${v.payment==='UPI'?'selected':''}>UPI</option>
+            <option ${v.payment==='Other'?'selected':''}>Other</option>
+          </select>
         </div>
-        <div><label>Counter payment (optional)</label><input type="number" min="0" id="f_counter"></div>
-        <div class="full"><button type="submit" class="btn">Save entry</button></div>
+        <div><label>Counter payment (optional)</label><input type="number" min="0" id="f_counter" value="${v.counter===''?'':Number(v.counter)}"></div>
+        <div class="full" style="display:flex;gap:10px;">
+          <button type="submit" class="btn">${editing ? 'Update entry' : 'Save entry'}</button>
+          ${editing ? `<button type="button" class="btn outline" onclick="cancelEdit()">Cancel</button>` : ''}
+        </div>
       </form>
     </div>`;
+}
+
+function editEntry(id){
+  editingId = id;
+  tab = 'add';
+  render();
+}
+
+function cancelEdit(){
+  editingId = null;
+  render();
 }
 
 function renderAll(){
@@ -271,7 +302,10 @@ function renderAll(){
     <td>${esc(e.type||'')}${e.service_type?` — ${esc(e.service_type)}`:''}</td>
     <td>${esc(e.employee||'')}</td><td>${esc(e.role||'')}</td>
     <td style="text-align:right;">${money(e.amount)}</td><td>${esc(e.payment||'')}</td>
-    <td><button onclick="deleteEntry('${e.id}')" style="border:none;background:none;color:var(--danger);cursor:pointer;">Delete</button></td></tr>`).join('');
+    <td style="white-space:nowrap;">
+      <button onclick="editEntry('${e.id}')" style="border:none;background:none;color:var(--gold);cursor:pointer;font-weight:500;">Edit</button>
+      <button onclick="deleteEntry('${e.id}')" style="border:none;background:none;color:var(--danger);cursor:pointer;margin-left:8px;">Delete</button>
+    </td></tr>`).join('');
   return `
     <div class="card" style="padding:0;overflow:hidden;">
       <div class="toolbar"><button class="btn" onclick="downloadRaw()">Download all entries</button></div>
@@ -301,8 +335,14 @@ async function submitEntry(ev){
     payment: document.getElementById('f_payment').value,
     counter: Number(document.getElementById('f_counter').value || 0),
   };
-  const { error } = await sb.from('service_entries').insert([entry]);
+  let error;
+  if(editingId){
+    ({ error } = await sb.from('service_entries').update(entry).eq('id', editingId));
+  } else {
+    ({ error } = await sb.from('service_entries').insert([entry]));
+  }
   if(error){ errEl.textContent = 'Could not save: ' + error.message; return false; }
+  editingId = null;
   await loadEntries();
   tab = 'report';
   render();
