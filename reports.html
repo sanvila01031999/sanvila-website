@@ -77,6 +77,8 @@
         <div class="title">Daily Service &amp; Sales Report</div>
       </div>
       <nav>
+        <button onclick="goBack()" title="Back" aria-label="Back" style="padding:9px 12px;">&#8592;</button>
+        <button onclick="goHome()" title="Home" aria-label="Home" style="padding:9px 12px;">&#8962;</button>
         <button id="tab-report" class="active" onclick="setTab('report')">Report</button>
         <button id="tab-add" onclick="setTab('add')">Add Entry</button>
         <button id="tab-all" onclick="setTab('all')">All Entries</button>
@@ -155,7 +157,25 @@ function getRange(){
   return {start:null,end:null};
 }
 
-function setTab(t){ tab=t; if(t!=='add') editingId=null; if(t==='add'){ editingId=null; } render(); }
+let tabHistory = [];
+function setTab(t){
+  if(t !== tab) tabHistory.push(tab);
+  tab=t; if(t!=='add') editingId=null; if(t==='add'){ editingId=null; } render();
+}
+function goBack(){
+  if(tabHistory.length){
+    tab = tabHistory.pop();
+    editingId = null;
+    render();
+  } else if(window.history.length > 1){
+    window.history.back();
+  } else {
+    window.location.href = '/';
+  }
+}
+function goHome(){
+  window.location.href = '/';
+}
 function setRange(r){ rangeMode=r; render(); }
 
 function computeReport(){
