@@ -319,7 +319,6 @@ function renderAdd(){
         <div class="field-group"><label>Role</label><input type="text" id="f_role" list="roleList" value="${esc(v.role||'Therapist')}">
           <datalist id="roleList">${[...new Set(entries.map(e=>e.role).filter(Boolean))].map(r=>`<option value="${esc(r)}">`).join('')}</datalist>
         </div>
-        <div class="field-group"><label>Counter split (optional)</label><input type="number" min="0" id="f_counter" value="${v.counter===''?'':Number(v.counter)}"></div>
         <div class="full" style="display:flex;gap:10px;">
           <button type="submit" class="btn">${editing ? 'Update entry' : 'Save entry'}</button>
           ${editing ? `<button type="button" class="btn outline" onclick="cancelEdit()">Cancel</button>` : ''}
@@ -413,7 +412,6 @@ async function submitEntry(ev){
     employee, role: document.getElementById('f_role').value.trim() || 'Therapist',
     amount: Number(amount),
     payment,
-    counter: isCounter ? 0 : Number(document.getElementById('f_counter').value || 0),
   };
   let error;
   if(editingId){
@@ -456,8 +454,8 @@ function downloadSummary(){
 }
 function downloadRaw(){
   const sorted = [...entries].sort((a,b)=> a.date<b.date?1:a.date>b.date?-1:0);
-  const headers = ['Date','Client Name','Number','Type','Service Type','Employee','Role','Amount','Payment Mode','Counter Payment'];
-  const rows = sorted.map(e=>[displayDate(e.date),e.name,e.number,e.type,e.service_type,e.employee,e.role,e.amount,e.payment,e.counter]);
+  const headers = ['Date','Client Name','Number','Type','Service Type','Employee','Role','Amount','Payment Mode'];
+  const rows = sorted.map(e=>[displayDate(e.date),e.name,e.number,e.type,e.service_type,e.employee,e.role,e.amount,e.payment]);
   downloadCSV(`sanvila-all-entries-${todayISO()}.csv`, toCSV(headers, rows));
 }
 function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
