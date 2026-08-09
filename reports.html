@@ -418,6 +418,7 @@ async function submitEntry(ev){
     payment,
   };
   let error;
+  const wasEditing = !!editingId;
   if(editingId){
     ({ error } = await sb.from('service_entries').update(entry).eq('id', editingId));
   } else {
@@ -426,9 +427,25 @@ async function submitEntry(ev){
   if(error){ errEl.textContent = 'Could not save: ' + error.message; return false; }
   editingId = null;
   await loadEntries();
-  tab = 'report';
+  tab = wasEditing ? 'all' : 'report';
   render();
+  if(wasEditing) flashMessage('Entry updated successfully.');
   return false;
+}
+
+let flashTimer = null;
+function flashMessage(msg){
+  let el = document.getElementById('flashMsg');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'flashMsg';
+    el.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--forest);color:var(--sand);padding:10px 20px;border-radius:4px;font-size:13px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.25);';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.display = 'block';
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(()=>{ el.style.display = 'none'; }, 3000);
 }
 
 async function deleteEntry(id){
