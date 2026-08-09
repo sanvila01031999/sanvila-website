@@ -417,14 +417,20 @@ async function submitEntry(ev){
     amount: Number(amount),
     payment,
   };
-  let error;
+  let error, data;
   const wasEditing = !!editingId;
   if(editingId){
-    ({ error } = await sb.from('service_entries').update(entry).eq('id', editingId));
+    ({ error, data } = await sb.from('service_entries').update(entry).eq('id', editingId).select());
   } else {
-    ({ error } = await sb.from('service_entries').insert([entry]));
+    ({ error, data } = await sb.from('service_entries').insert([entry]).select());
   }
   if(error){ errEl.textContent = 'Could not save: ' + error.message; return false; }
+  if(!data || data.length === 0){
+    errEl.textContent = wasEditing
+      ? 'Update was blocked by the database (0 rows changed). This usually means your Supabase table is missing an UPDATE permission policy for this login — see the note below the form.'
+      : 'Save was blocked by the database (0 rows created). This usually means your Supabase table is missing an INSERT permission policy for this login.';
+    return false;
+  }
   editingId = null;
   await loadEntries();
   tab = wasEditing ? 'all' : 'report';
@@ -450,8 +456,12 @@ function flashMessage(msg){
 
 async function deleteEntry(id){
   if(!confirm('Delete this entry?')) return;
-  const { error } = await sb.from('service_entries').delete().eq('id', id);
+  const { error, data } = await sb.from('service_entries').delete().eq('id', id).select();
   if(error){ alert('Could not delete: ' + error.message); return; }
+  if(!data || data.length === 0){
+    alert('Delete was blocked by the database (0 rows removed). This usually means your Supabase table is missing a DELETE permission policy for this login.');
+    return;
+  }
   await loadEntries();
   render();
 }
