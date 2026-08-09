@@ -175,7 +175,11 @@ function goBack(){
   }
 }
 function goHome(){
-  window.location.href = '/';
+  tabHistory = [];
+  editingId = null;
+  tab = 'report';
+  rangeMode = 'today';
+  render();
 }
 function setRange(r){ rangeMode=r; render(); }
 
