@@ -291,6 +291,7 @@ const SERVICE_TYPE_GROUPS = {
 const SERVICE_TYPES = Object.values(SERVICE_TYPE_GROUPS).flat();
 const ROLES = ['Therapist','Beautician','Hairstylist'];
 const ROLE_CATEGORY_MAP = { 'Therapist':'Body Spa & Massage', 'Hairstylist':'Hair Styling', 'Beautician':'Beauty Services' };
+const KNOWN_EMPLOYEES = ['Bikash'];
 let editingId = null;
 
 function groupsForRole(role){
@@ -328,7 +329,7 @@ function renderAdd(){
       <form class="entry" onsubmit="return submitEntry(event)">
         <div><label>Date</label><input type="date" id="f_date" value="${v.date}"></div>
         <div><label>Employee / Therapist *</label><input type="text" id="f_employee" list="empList" value="${esc(v.employee||'')}">
-          <datalist id="empList">${[...new Set(entries.map(e=>e.employee).filter(Boolean))].map(e=>`<option value="${esc(e)}">`).join('')}</datalist>
+          <datalist id="empList">${[...new Set([...KNOWN_EMPLOYEES, ...entries.map(e=>e.employee).filter(Boolean)])].map(e=>`<option value="${esc(e)}">`).join('')}</datalist>
         </div>
         <div><label>Amount received (₹) *</label><input type="number" min="0" id="f_amount" value="${v.amount===''?'':Number(v.amount)}"></div>
         <div><label>Payment mode</label>
