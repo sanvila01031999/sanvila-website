@@ -318,18 +318,38 @@ function onRoleChange(){
   typeEl.innerHTML = buildServiceOptionsHTML(roleEl.value, keep);
 }
 
+function onEmployeeSelectChange(){
+  const sel = document.getElementById('f_employee_select');
+  const txt = document.getElementById('f_employee');
+  if(!sel || !txt) return;
+  if(sel.value === '__other__'){
+    txt.style.display = 'block';
+    txt.value = '';
+    txt.focus();
+  } else {
+    txt.style.display = 'none';
+    txt.value = sel.value;
+  }
+}
+
 function renderAdd(){
   const editing = editingId ? entries.find(e => e.id === editingId) : null;
   const v = editing || { date: todayISO(), name:'', number:'', service_type:'', employee:'', role:'Therapist', amount:'', payment:'Cash', counter:'' };
   const serviceOptions = buildServiceOptionsHTML(v.role || 'Therapist', v.service_type);
+  const employeeList = [...new Set([...KNOWN_EMPLOYEES, ...entries.map(e=>e.employee).filter(Boolean)])].sort((a,b)=>a.localeCompare(b));
   return `
     <div class="card" style="max-width:640px;">
       <div style="font-family:Georgia,serif;font-size:18px;margin-bottom:20px;">${editing ? 'Edit entry' : "Add today's entry"}</div>
       <div id="formError" class="error"></div>
       <form class="entry" onsubmit="return submitEntry(event)">
         <div><label>Date</label><input type="date" id="f_date" value="${v.date}"></div>
-        <div><label>Employee / Therapist *</label><input type="text" id="f_employee" list="empList" value="${esc(v.employee||'')}">
-          <datalist id="empList">${[...new Set([...KNOWN_EMPLOYEES, ...entries.map(e=>e.employee).filter(Boolean)])].map(e=>`<option value="${esc(e)}">`).join('')}</datalist>
+        <div><label>Employee / Therapist *</label>
+          <select id="f_employee_select" onchange="onEmployeeSelectChange()">
+            <option value="">— Select —</option>
+            ${employeeList.map(e=>`<option value="${esc(e)}" ${v.employee===e?'selected':''}>${esc(e)}</option>`).join('')}
+            <option value="__other__" ${v.employee && !employeeList.includes(v.employee) ? 'selected':''}>+ Add new employee</option>
+          </select>
+          <input type="text" id="f_employee" placeholder="Enter new employee name" value="${esc(v.employee||'')}" style="margin-top:8px;${(!v.employee || employeeList.includes(v.employee)) ? 'display:none;':''}">
         </div>
         <div><label>Amount received (₹) *</label><input type="number" min="0" id="f_amount" value="${v.amount===''?'':Number(v.amount)}"></div>
         <div><label>Payment mode</label>
