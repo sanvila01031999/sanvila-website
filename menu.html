@@ -4,128 +4,226 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sanvila — Menu of Services</title>
+<meta name="description" content="Sanvila Unisex Saloon & Spa — full menu of hair, skin, spa, nail, bridal and grooming services. Kolkata.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --forest:#152922; --sand:#EEE7D8; --cream:#FBF8F1;
-    --gold:#B08D57; --gold-light:#CBA96E; --charcoal:#22221E;
-    --charcoal-soft:#5B5B52; --line:#E2D9C4;
+    --ink:#0e0c0a; --panel:#161310; --card:#1b1712;
+    --gold:#c9a96e; --gold-light:#e2c78a; --cream:#f5f0e8; --muted:#8a7d6a;
+    --line:rgba(201,169,110,.18);
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
-  body{margin:0;background:var(--cream);color:var(--charcoal);font-family:Inter,system-ui,sans-serif;}
+  body{margin:0;background:var(--ink);color:var(--cream);font-family:'Jost',sans-serif;font-weight:300;padding-bottom:70px;}
+  em{font-style:italic;font-family:'Cormorant Garamond',serif;color:var(--gold);}
 
-  .hero{background:var(--forest);color:var(--sand);padding:56px 24px 44px;text-align:center;position:relative;}
-  .seal{width:64px;height:64px;margin:0 auto 18px;}
-  .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-light);margin-bottom:10px;}
-  .word{font-family:'Cormorant Garamond',Georgia,serif;font-size:44px;font-weight:600;letter-spacing:.04em;margin:0;}
-  .tag{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:18px;color:var(--sand);opacity:.8;margin-top:10px;}
-  .hero-rule{width:64px;height:1px;background:var(--gold);margin:22px auto 0;opacity:.6;}
+  .topbar{position:sticky;top:0;z-index:20;background:var(--ink);border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;padding:14px 22px;gap:12px;}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;}
+  .brand svg{width:32px;height:32px;color:var(--gold);}
+  .brand-text{display:flex;flex-direction:column;line-height:1.25;}
+  .brand-name{font-family:'Cormorant Garamond',serif;font-size:15px;letter-spacing:.12em;color:var(--cream);}
+  .brand-sub{font-size:8px;letter-spacing:.2em;color:var(--muted);}
+  .wa-btn{background:var(--gold);color:var(--ink);text-decoration:none;font-size:11.5px;font-weight:500;
+    letter-spacing:.05em;padding:9px 15px;border-radius:2px;white-space:nowrap;}
 
-  main{max-width:640px;margin:0 auto;padding:8px 24px 60px;}
+  .hero{text-align:center;padding:56px 24px 40px;position:relative;}
+  .badge{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:20px;
+    padding:6px 16px;font-size:10.5px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase;margin-bottom:22px;}
+  .hero h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:40px;margin:0;line-height:1.2;color:var(--cream);}
+  .hero p{max-width:420px;margin:16px auto 0;font-size:13.5px;color:var(--muted);line-height:1.75;font-weight:300;}
+  .hero .addr{font-size:11px;color:var(--muted);margin-top:20px;letter-spacing:.05em;}
 
-  .section{padding:48px 0 8px;border-bottom:1px solid var(--line);}
-  .section:last-of-type{border-bottom:none;}
-  .sec-head{display:flex;align-items:center;gap:14px;margin-bottom:26px;}
-  .sec-num{font-family:'Cormorant Garamond',Georgia,serif;font-size:15px;color:var(--gold);letter-spacing:.08em;}
-  .sec-glyph{width:22px;height:22px;color:var(--gold);flex:none;}
-  .sec-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:600;margin:0;}
-  .sec-sub{font-size:12.5px;color:var(--charcoal-soft);margin-top:2px;letter-spacing:.02em;}
+  main{max-width:640px;margin:0 auto;padding:0 22px;}
 
-  .item{display:flex;align-items:baseline;gap:8px;padding:13px 0;border-top:1px solid var(--line);}
-  .item:first-of-type{border-top:none;}
-  .item-name{font-size:16px;font-weight:500;color:var(--charcoal);}
-  .item-leader{flex:1;border-bottom:1px dotted var(--gold-light);height:1px;transform:translateY(-4px);opacity:.7;}
-  .item-note{font-size:11.5px;color:var(--charcoal-soft);letter-spacing:.03em;white-space:nowrap;}
+  .section{padding:38px 0;border-top:1px solid var(--line);}
+  .sec-eyebrow{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+  .sec-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;margin:0 0 8px;color:var(--cream);}
+  .sec-desc{font-size:12.5px;color:var(--muted);line-height:1.7;max-width:480px;font-weight:300;}
 
-  footer{text-align:center;padding:40px 24px 56px;color:var(--charcoal-soft);}
-  footer .hero-rule{background:var(--gold-light);opacity:.5;}
-  footer .word{font-size:20px;color:var(--forest);margin-top:16px;}
-  footer .note{font-size:12.5px;margin-top:10px;line-height:1.6;}
+  .items{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;margin-top:18px;}
+  .item{display:flex;align-items:baseline;gap:9px;padding:10px 0;font-size:14px;color:var(--cream);
+    border-top:1px solid var(--line);font-weight:300;letter-spacing:.02em;}
+  .items .item:nth-child(-n+2){border-top:none;}
+  .item::before{content:'✦';color:var(--gold);font-size:8px;position:relative;top:-2px;}
+
+  .features{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:34px 0 6px;border-top:1px solid var(--line);}
+  .feature{text-align:center;}
+  .feature .mark{color:var(--gold);font-size:14px;margin-bottom:8px;}
+  .feature .ft-title{font-size:12px;letter-spacing:.06em;color:var(--cream);}
+  .feature .ft-sub{font-size:10.5px;color:var(--muted);margin-top:4px;line-height:1.5;}
+
+  footer{text-align:center;padding:50px 24px 10px;}
+  footer svg{width:34px;height:34px;color:var(--gold);margin-bottom:10px;}
+  footer .word{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--cream);letter-spacing:.1em;}
+  footer .sub{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:6px 0 20px;}
+  footer .contact{font-size:12.5px;line-height:2;color:var(--muted);}
+  footer a{color:var(--gold-light);text-decoration:none;}
+
+  .book-fixed{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--panel);border-top:1px solid var(--line);
+    padding:13px 20px;display:flex;justify-content:center;}
+  .book-fixed a{background:var(--gold);color:var(--ink);text-decoration:none;font-size:13px;font-weight:500;
+    padding:12px 30px;border-radius:2px;letter-spacing:.08em;text-transform:uppercase;}
 
   @media (max-width:420px){
-    .word{font-size:36px;}
-    .sec-title{font-size:22px;}
+    .hero h1{font-size:31px;}
+    .items{grid-template-columns:1fr;}
+    .items .item:nth-child(2){border-top:1px solid var(--line);}
+    .items .item:nth-child(1){border-top:none;}
+    .features{grid-template-columns:1fr;text-align:left;}
+    .feature{display:flex;align-items:baseline;gap:10px;}
   }
 </style>
 </head>
 <body>
 
+  <div class="topbar">
+    <a href="https://sanvila-website.vercel.app/#home" class="brand">
+      <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="22" cy="22" r="21" stroke="currentColor" stroke-width="0.8"/>
+        <g transform="translate(22,22)">
+          <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(0)"/>
+          <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(45)"/>
+          <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(90)"/>
+          <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(135)"/>
+          <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(180)"/>
+          <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(225)"/>
+          <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(270)"/>
+          <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(315)"/>
+          <circle cx="0" cy="0" r="2.5" fill="currentColor"/>
+        </g>
+      </svg>
+      <span class="brand-text">
+        <span class="brand-name">SANVILA</span>
+        <span class="brand-sub">UNISEX SALOON AND SPA</span>
+      </span>
+    </a>
+    <a class="wa-btn" href="https://wa.me/917439509302?text=Hi%20Sanvila!%20I%20would%20like%20to%20book%20an%20appointment." target="_blank" rel="noopener">Book Now</a>
+  </div>
+
   <div class="hero">
-    <svg class="seal" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="32" cy="32" r="30" stroke="#CBA96E" stroke-width="1"/>
-      <circle cx="32" cy="32" r="24" stroke="#CBA96E" stroke-width="0.6" opacity=".6"/>
-      <path d="M32 20c4 4 4 10 0 14c-4-4-4-10 0-14z" fill="#CBA96E"/>
-      <path d="M32 34v8" stroke="#CBA96E" stroke-width="1"/>
-      <path d="M32 38c-3 0-5 2-5 2s2 3 5 3 5-3 5-3-2-2-5-2z" fill="#CBA96E" opacity=".85"/>
-    </svg>
-    <div class="eyebrow">Sanvila</div>
-    <h1 class="word">Menu of Services</h1>
-    <div class="tag">Massage &middot; Hair &middot; Beauty</div>
-    <div class="hero-rule"></div>
+    <div class="badge"><span>✦</span><span>Est. 2026</span></div>
+    <h1><em>Our</em> Menu of<br>Services</h1>
+    <p>Premium hair, beauty and wellness treatments for everyone, all under one roof.</p>
+    <div class="addr">141/1 Regent Colony, NSCB Road, Kolkata &middot; Open daily 11:00 AM – 10:00 PM</div>
   </div>
 
   <main>
 
     <div class="section">
-      <div class="sec-head">
-        <span class="sec-num">I.</span>
-        <svg class="sec-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 21c-4-2.5-7-6-7-10a7 7 0 0 1 14 0c0 4-3 7.5-7 10z"/><path d="M12 21V7"/></svg>
-        <div>
-          <h2 class="sec-title">Body Spa &amp; Massage</h2>
-          <div class="sec-sub">Restorative treatments for body and mind</div>
-        </div>
+      <div class="sec-eyebrow">For Every Hair Type</div>
+      <h2 class="sec-title">Hair Services</h2>
+      <div class="sec-desc">Expert cuts, styling, colouring and treatments — adults and kids both welcome.</div>
+      <div class="items">
+        <div class="item">Haircut &amp; Styling (Adult)</div>
+        <div class="item">Kids Haircut</div>
+        <div class="item">Hair Wash &amp; Blow Dry</div>
+        <div class="item">Hair Smoothening</div>
+        <div class="item">Hair Straightening</div>
+        <div class="item">Colour &amp; Highlights</div>
+        <div class="item">Keratin Treatment</div>
+        <div class="item">Hair Spa &amp; Conditioning</div>
       </div>
-      <div class="item"><span class="item-name">Dry Massage</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
-      <div class="item"><span class="item-name">Aroma Massage</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
-      <div class="item"><span class="item-name">Swedish Massage</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
-      <div class="item"><span class="item-name">Deep Tissue Massage</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
-      <div class="item"><span class="item-name">Body Polishing</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
-      <div class="item"><span class="item-name">Cream Massage</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
     </div>
 
     <div class="section">
-      <div class="sec-head">
-        <span class="sec-num">II.</span>
-        <svg class="sec-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 6l12 12M18 6L6 18"/><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="18" r="2.2"/><circle cx="6" cy="6" r="2.2"/><circle cx="18" cy="6" r="2.2"/></svg>
-        <div>
-          <h2 class="sec-title">Hair Styling</h2>
-          <div class="sec-sub">Cut, colour and finish, by our stylists</div>
-        </div>
+      <div class="sec-eyebrow">Radiant, Healthy Skin</div>
+      <h2 class="sec-title">Skin &amp; Facial</h2>
+      <div class="sec-desc">Revitalising facials, clean-ups and advanced skin treatments.</div>
+      <div class="items">
+        <div class="item">Classic &amp; Gold Facial</div>
+        <div class="item">Deep Cleansing</div>
+        <div class="item">Bleach &amp; D-Tan</div>
+        <div class="item">Anti-Aging Treatments</div>
       </div>
-      <div class="item"><span class="item-name">Cutting</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
-      <div class="item"><span class="item-name">Colour</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
-      <div class="item"><span class="item-name">Styling</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
-      <div class="item"><span class="item-name">Blow Dry</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
-      <div class="item"><span class="item-name">Hair Spa</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
-      <div class="item"><span class="item-name">Keratin Treatment</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
     </div>
 
     <div class="section">
-      <div class="sec-head">
-        <span class="sec-num">III.</span>
-        <svg class="sec-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2 2M16.4 16.4l2 2M5.6 18.4l2-2M16.4 7.6l2-2"/><circle cx="12" cy="12" r="3.2"/></svg>
-        <div>
-          <h2 class="sec-title">Beauty Services</h2>
-          <div class="sec-sub">Finishing touches for face and hands</div>
-        </div>
+      <div class="sec-eyebrow">Deep Relaxation</div>
+      <h2 class="sec-title">Spa &amp; Massage</h2>
+      <div class="sec-desc">Signature therapies designed for renewal — escape the everyday.</div>
+      <div class="items">
+        <div class="item">Swedish Massage</div>
+        <div class="item">Deep Tissue Therapy</div>
+        <div class="item">Aromatherapy</div>
+        <div class="item">Body Polishing</div>
+        <div class="item">Head &amp; Foot Massage</div>
       </div>
-      <div class="item"><span class="item-name">Threading</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
-      <div class="item"><span class="item-name">Facial</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
-      <div class="item"><span class="item-name">Waxing</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
-      <div class="item"><span class="item-name">Pedicure</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
-      <div class="item"><span class="item-name">Manicure</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-eyebrow">Complete Beauty Regimen</div>
+      <h2 class="sec-title">Nail &amp; Beauty</h2>
+      <div class="sec-desc">Precision nail care, waxing and threading.</div>
+      <div class="items">
+        <div class="item">Manicure &amp; Pedicure</div>
+        <div class="item">Nail Extensions</div>
+        <div class="item">Waxing &amp; Threading</div>
+        <div class="item">Bridal Beauty Packages</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-eyebrow">Your Special Day</div>
+      <h2 class="sec-title">Bridal Packages</h2>
+      <div class="sec-desc">Bespoke bridal beauty, so your day feels unforgettable.</div>
+      <div class="items">
+        <div class="item">Pre-Bridal Ritual</div>
+        <div class="item">Bridal Makeup</div>
+        <div class="item">Hair Styling</div>
+        <div class="item">Complete Beauty Package</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-eyebrow">Grooming, Done Right</div>
+      <h2 class="sec-title">Men's Grooming</h2>
+      <div class="sec-desc">Precision cuts, beard shaping, and skin treatments.</div>
+      <div class="items">
+        <div class="item">Haircut &amp; Styling</div>
+        <div class="item">Beard Trim &amp; Shaping</div>
+        <div class="item">Facial &amp; Clean-up</div>
+        <div class="item">Hair Colouring</div>
+      </div>
+    </div>
+
+    <div class="features">
+      <div class="feature"><div class="mark">✦</div><div class="ft-title">EXPERT STYLISTS</div><div class="ft-sub">Trained in the latest techniques</div></div>
+      <div class="feature"><div class="mark">✦</div><div class="ft-title">PREMIUM PRODUCTS</div><div class="ft-sub">Only the finest brands used</div></div>
+      <div class="feature"><div class="mark">✦</div><div class="ft-title">HYGIENIC &amp; SAFE</div><div class="ft-sub">Strict sanitization protocols</div></div>
     </div>
 
   </main>
 
   <footer>
-    <div class="hero-rule"></div>
-    <div class="word">Sanvila</div>
-    <div class="note">Prices vary by treatment &mdash; please ask our team at reception.<br>Thank you for visiting us today.</div>
+    <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="22" cy="22" r="21" stroke="currentColor" stroke-width="0.8"/>
+      <g transform="translate(22,22)">
+        <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(0)"/>
+        <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(45)"/>
+        <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(90)"/>
+        <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(135)"/>
+        <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(180)"/>
+        <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(225)"/>
+        <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(270)"/>
+        <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(315)"/>
+        <circle cx="0" cy="0" r="2.5" fill="currentColor"/>
+      </g>
+    </svg>
+    <div class="word">SANVILA</div>
+    <div class="sub">Unisex Saloon and Spa &middot; Kolkata</div>
+    <div class="contact">
+      141/1 Regent Colony, NSCB Road, Kolkata<br>
+      <a href="https://wa.me/917439509302">WhatsApp +91 74395 09302</a><br>
+      <a href="mailto:sanvila01031999@gmail.com">sanvila01031999@gmail.com</a>
+    </div>
   </footer>
+
+  <div class="book-fixed">
+    <a href="https://wa.me/917439509302?text=Hi%20Sanvila!%20I%20would%20like%20to%20book%20an%20appointment." target="_blank" rel="noopener">Book Your Visit</a>
+  </div>
 
 </body>
 </html>
