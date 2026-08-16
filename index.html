@@ -285,18 +285,41 @@ function renderReport(){
 
 const SERVICE_TYPE_GROUPS = {
   'Body Spa & Massage': ['Dry Massage','Aroma Massage','Swedish Massage','Deep Tissue Massage','Body Polishing','Cream Massage'],
-  'Hair Styling': ['Haircut','Hair Wash & Blow Dry','Hair Colour','Hair Spa','Keratin Treatment','Hair Styling (Event/Bridal)']
+  'Hair Styling': ['Cutting','Colour','Styling','Blow Dry','Hair Spa','Keratin Treatment']
 };
 const SERVICE_TYPES = Object.values(SERVICE_TYPE_GROUPS).flat();
+const ROLES = ['Therapist','Beautician','Hairstylist'];
+const ROLE_CATEGORY_MAP = { 'Therapist':'Body Spa & Massage', 'Hairstylist':'Hair Styling' };
 let editingId = null;
+
+function groupsForRole(role){
+  const group = ROLE_CATEGORY_MAP[role];
+  return group ? { [group]: SERVICE_TYPE_GROUPS[group] } : SERVICE_TYPE_GROUPS;
+}
+
+function buildServiceOptionsHTML(role, selected){
+  const groups = groupsForRole(role);
+  const flat = Object.values(groups).flat();
+  const optgroups = Object.entries(groups).map(([group, types]) =>
+    `<optgroup label="${esc(group)}">${types.map(s => `<option value="${esc(s)}" ${selected===s?'selected':''}>${esc(s)}</option>`).join('')}</optgroup>`
+  ).join('');
+  const other = selected && !flat.includes(selected) ? `<option value="${esc(selected)}" selected>${esc(selected)} (other)</option>` : '';
+  return `<option value="">— Select —</option>${optgroups}${other}`;
+}
+
+function onRoleChange(){
+  const roleEl = document.getElementById('f_role');
+  const typeEl = document.getElementById('f_serviceType');
+  if(!roleEl || !typeEl) return;
+  const flat = Object.values(groupsForRole(roleEl.value)).flat();
+  const keep = flat.includes(typeEl.value) ? typeEl.value : '';
+  typeEl.innerHTML = buildServiceOptionsHTML(roleEl.value, keep);
+}
 
 function renderAdd(){
   const editing = editingId ? entries.find(e => e.id === editingId) : null;
   const v = editing || { date: todayISO(), name:'', number:'', type:'Body spa', service_type:'', employee:'', role:'Therapist', amount:'', payment:'Cash', counter:'' };
-  const serviceOptions = Object.entries(SERVICE_TYPE_GROUPS).map(([group, types]) =>
-    `<optgroup label="${esc(group)}">${types.map(s => `<option value="${esc(s)}" ${v.service_type===s?'selected':''}>${esc(s)}</option>`).join('')}</optgroup>`
-  ).join('');
-  const currentNotListed = v.service_type && !SERVICE_TYPES.includes(v.service_type);
+  const serviceOptions = buildServiceOptionsHTML(v.role || 'Therapist', v.service_type);
   return `
     <div class="card" style="max-width:640px;">
       <div style="font-family:Georgia,serif;font-size:18px;margin-bottom:20px;">${editing ? 'Edit entry' : "Add today's entry"}</div>
@@ -321,13 +344,14 @@ function renderAdd(){
         <div class="field-group"><label>Service category</label><input type="text" id="f_type" placeholder="e.g. Body spa, threading, Hair styling" value="${esc(v.type||'Body spa')}"></div>
         <div class="field-group"><label>Service type</label>
           <select id="f_serviceType">
-            <option value="">— Select —</option>
             ${serviceOptions}
-            ${currentNotListed ? `<option value="${esc(v.service_type)}" selected>${esc(v.service_type)} (other)</option>` : ''}
           </select>
         </div>
-        <div class="field-group"><label>Role</label><input type="text" id="f_role" list="roleList" value="${esc(v.role||'Therapist')}">
-          <datalist id="roleList">${[...new Set(entries.map(e=>e.role).filter(Boolean))].map(r=>`<option value="${esc(r)}">`).join('')}</datalist>
+        <div class="field-group"><label>Role</label>
+          <select id="f_role" onchange="onRoleChange()">
+            ${ROLES.map(r=>`<option value="${esc(r)}" ${v.role===r?'selected':''}>${esc(r)}</option>`).join('')}
+            ${v.role && !ROLES.includes(v.role) ? `<option value="${esc(v.role)}" selected>${esc(v.role)}</option>` : ''}
+          </select>
         </div>
         <div class="full" style="display:flex;gap:10px;">
           <button type="submit" class="btn">${editing ? 'Update entry' : 'Save entry'}</button>
