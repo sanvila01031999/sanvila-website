@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanvila — Menu of Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --forest:#152922; --sand:#EEE7D8; --cream:#FBF8F1;
+    --gold:#B08D57; --gold-light:#CBA96E; --charcoal:#22221E;
+    --charcoal-soft:#5B5B52; --line:#E2D9C4;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--cream);color:var(--charcoal);font-family:Inter,system-ui,sans-serif;}
+
+  .hero{background:var(--forest);color:var(--sand);padding:56px 24px 44px;text-align:center;position:relative;}
+  .seal{width:64px;height:64px;margin:0 auto 18px;}
+  .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-light);margin-bottom:10px;}
+  .word{font-family:'Cormorant Garamond',Georgia,serif;font-size:44px;font-weight:600;letter-spacing:.04em;margin:0;}
+  .tag{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:18px;color:var(--sand);opacity:.8;margin-top:10px;}
+  .hero-rule{width:64px;height:1px;background:var(--gold);margin:22px auto 0;opacity:.6;}
+
+  main{max-width:640px;margin:0 auto;padding:8px 24px 60px;}
+
+  .section{padding:48px 0 8px;border-bottom:1px solid var(--line);}
+  .section:last-of-type{border-bottom:none;}
+  .sec-head{display:flex;align-items:center;gap:14px;margin-bottom:26px;}
+  .sec-num{font-family:'Cormorant Garamond',Georgia,serif;font-size:15px;color:var(--gold);letter-spacing:.08em;}
+  .sec-glyph{width:22px;height:22px;color:var(--gold);flex:none;}
+  .sec-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:600;margin:0;}
+  .sec-sub{font-size:12.5px;color:var(--charcoal-soft);margin-top:2px;letter-spacing:.02em;}
+
+  .item{display:flex;align-items:baseline;gap:8px;padding:13px 0;border-top:1px solid var(--line);}
+  .item:first-of-type{border-top:none;}
+  .item-name{font-size:16px;font-weight:500;color:var(--charcoal);}
+  .item-leader{flex:1;border-bottom:1px dotted var(--gold-light);height:1px;transform:translateY(-4px);opacity:.7;}
+  .item-note{font-size:11.5px;color:var(--charcoal-soft);letter-spacing:.03em;white-space:nowrap;}
+
+  footer{text-align:center;padding:40px 24px 56px;color:var(--charcoal-soft);}
+  footer .hero-rule{background:var(--gold-light);opacity:.5;}
+  footer .word{font-size:20px;color:var(--forest);margin-top:16px;}
+  footer .note{font-size:12.5px;margin-top:10px;line-height:1.6;}
+
+  @media (max-width:420px){
+    .word{font-size:36px;}
+    .sec-title{font-size:22px;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="hero">
+    <svg class="seal" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="32" r="30" stroke="#CBA96E" stroke-width="1"/>
+      <circle cx="32" cy="32" r="24" stroke="#CBA96E" stroke-width="0.6" opacity=".6"/>
+      <path d="M32 20c4 4 4 10 0 14c-4-4-4-10 0-14z" fill="#CBA96E"/>
+      <path d="M32 34v8" stroke="#CBA96E" stroke-width="1"/>
+      <path d="M32 38c-3 0-5 2-5 2s2 3 5 3 5-3 5-3-2-2-5-2z" fill="#CBA96E" opacity=".85"/>
+    </svg>
+    <div class="eyebrow">Sanvila</div>
+    <h1 class="word">Menu of Services</h1>
+    <div class="tag">Massage &middot; Hair &middot; Beauty</div>
+    <div class="hero-rule"></div>
+  </div>
+
+  <main>
+
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-num">I.</span>
+        <svg class="sec-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 21c-4-2.5-7-6-7-10a7 7 0 0 1 14 0c0 4-3 7.5-7 10z"/><path d="M12 21V7"/></svg>
+        <div>
+          <h2 class="sec-title">Body Spa &amp; Massage</h2>
+          <div class="sec-sub">Restorative treatments for body and mind</div>
+        </div>
+      </div>
+      <div class="item"><span class="item-name">Dry Massage</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+      <div class="item"><span class="item-name">Aroma Massage</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+      <div class="item"><span class="item-name">Swedish Massage</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+      <div class="item"><span class="item-name">Deep Tissue Massage</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+      <div class="item"><span class="item-name">Body Polishing</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+      <div class="item"><span class="item-name">Cream Massage</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-num">II.</span>
+        <svg class="sec-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 6l12 12M18 6L6 18"/><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="18" r="2.2"/><circle cx="6" cy="6" r="2.2"/><circle cx="18" cy="6" r="2.2"/></svg>
+        <div>
+          <h2 class="sec-title">Hair Styling</h2>
+          <div class="sec-sub">Cut, colour and finish, by our stylists</div>
+        </div>
+      </div>
+      <div class="item"><span class="item-name">Cutting</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+      <div class="item"><span class="item-name">Colour</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+      <div class="item"><span class="item-name">Styling</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+      <div class="item"><span class="item-name">Blow Dry</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+      <div class="item"><span class="item-name">Hair Spa</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+      <div class="item"><span class="item-name">Keratin Treatment</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head">
+        <span class="sec-num">III.</span>
+        <svg class="sec-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2 2M16.4 16.4l2 2M5.6 18.4l2-2M16.4 7.6l2-2"/><circle cx="12" cy="12" r="3.2"/></svg>
+        <div>
+          <h2 class="sec-title">Beauty Services</h2>
+          <div class="sec-sub">Finishing touches for face and hands</div>
+        </div>
+      </div>
+      <div class="item"><span class="item-name">Threading</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+      <div class="item"><span class="item-name">Facial</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+      <div class="item"><span class="item-name">Waxing</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+      <div class="item"><span class="item-name">Pedicure</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+      <div class="item"><span class="item-name">Manicure</span><span class="item-leader"></span><span class="item-note">Ask reception</span></div>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="hero-rule"></div>
+    <div class="word">Sanvila</div>
+    <div class="note">Prices vary by treatment &mdash; please ask our team at reception.<br>Thank you for visiting us today.</div>
+  </footer>
+
+</body>
+</html>
