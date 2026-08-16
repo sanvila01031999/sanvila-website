@@ -285,11 +285,12 @@ function renderReport(){
 
 const SERVICE_TYPE_GROUPS = {
   'Body Spa & Massage': ['Dry Massage','Aroma Massage','Swedish Massage','Deep Tissue Massage','Body Polishing','Cream Massage'],
-  'Hair Styling': ['Cutting','Colour','Styling','Blow Dry','Hair Spa','Keratin Treatment']
+  'Hair Styling': ['Cutting','Colour','Styling','Blow Dry','Hair Spa','Keratin Treatment'],
+  'Beauty Services': ['Threading','Facial','Waxing','Pedicure','Manicure']
 };
 const SERVICE_TYPES = Object.values(SERVICE_TYPE_GROUPS).flat();
 const ROLES = ['Therapist','Beautician','Hairstylist'];
-const ROLE_CATEGORY_MAP = { 'Therapist':'Body Spa & Massage', 'Hairstylist':'Hair Styling' };
+const ROLE_CATEGORY_MAP = { 'Therapist':'Body Spa & Massage', 'Hairstylist':'Hair Styling', 'Beautician':'Beauty Services' };
 let editingId = null;
 
 function groupsForRole(role){
@@ -318,7 +319,7 @@ function onRoleChange(){
 
 function renderAdd(){
   const editing = editingId ? entries.find(e => e.id === editingId) : null;
-  const v = editing || { date: todayISO(), name:'', number:'', type:'Body spa', service_type:'', employee:'', role:'Therapist', amount:'', payment:'Cash', counter:'' };
+  const v = editing || { date: todayISO(), name:'', number:'', service_type:'', employee:'', role:'Therapist', amount:'', payment:'Cash', counter:'' };
   const serviceOptions = buildServiceOptionsHTML(v.role || 'Therapist', v.service_type);
   return `
     <div class="card" style="max-width:640px;">
@@ -340,17 +341,16 @@ function renderAdd(){
         </div>
         <div class="counter-note" id="counterNote" style="display:none;">Counter payment entry — only date, employee and amount are needed. The fields below are dimmed and won't be saved.</div>
         <div class="field-group full"><label>Client name</label><input type="text" id="f_name" placeholder="e.g. Client" value="${esc(v.name||'')}"></div>
-        <div class="field-group"><label>Client number (optional)</label><input type="text" id="f_number" value="${esc(v.number||'')}"></div>
-        <div class="field-group"><label>Service category</label><input type="text" id="f_type" placeholder="e.g. Body spa, threading, Hair styling" value="${esc(v.type||'Body spa')}"></div>
-        <div class="field-group"><label>Service type</label>
-          <select id="f_serviceType">
-            ${serviceOptions}
-          </select>
-        </div>
+        <div class="field-group full"><label>Client number (optional)</label><input type="text" id="f_number" value="${esc(v.number||'')}"></div>
         <div class="field-group"><label>Role</label>
           <select id="f_role" onchange="onRoleChange()">
             ${ROLES.map(r=>`<option value="${esc(r)}" ${v.role===r?'selected':''}>${esc(r)}</option>`).join('')}
             ${v.role && !ROLES.includes(v.role) ? `<option value="${esc(v.role)}" selected>${esc(v.role)}</option>` : ''}
+          </select>
+        </div>
+        <div class="field-group"><label>Service type</label>
+          <select id="f_serviceType">
+            ${serviceOptions}
           </select>
         </div>
         <div class="full" style="display:flex;gap:10px;">
@@ -441,7 +441,7 @@ async function submitEntry(ev){
     date: document.getElementById('f_date').value,
     name: isCounter ? 'Counter Payment' : (document.getElementById('f_name').value.trim() || 'Client'),
     number: isCounter ? '' : document.getElementById('f_number').value.trim(),
-    type: isCounter ? 'Counter Payment' : document.getElementById('f_type').value.trim(),
+    type: isCounter ? 'Counter Payment' : (ROLE_CATEGORY_MAP[document.getElementById('f_role').value.trim()] || document.getElementById('f_role').value.trim()),
     service_type: isCounter ? '' : document.getElementById('f_serviceType').value.trim(),
     employee, role: document.getElementById('f_role').value.trim() || 'Therapist',
     amount: Number(amount),
