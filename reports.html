@@ -5,64 +5,86 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sanvila — Daily Service & Sales Report</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --forest:#152922; --sand:#EEE7D8; --cream:#FBF8F1;
-    --gold:#B08D57; --gold-light:#CBA96E; --charcoal:#22221E;
-    --charcoal-soft:#4A4A44; --line:#E2D9C4; --danger:#8a2c22;
+    --ink:#0e0c0a; --panel:#161310; --card:#1b1712; --card-soft:#211c16;
+    --gold:#c9a96e; --gold-light:#e2c78a; --cream:#f5f0e8;
+    --muted:#8a7d6a; --line:rgba(201,169,110,.18); --danger:#c9756a;
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--sand);color:var(--charcoal);font-family:Inter,system-ui,sans-serif;}
-  header{background:var(--forest);color:var(--sand);padding:22px 24px;}
+  body{margin:0;background:var(--ink);color:var(--cream);font-family:'Jost',system-ui,sans-serif;font-weight:300;}
+  header{background:var(--ink);color:var(--cream);padding:20px 24px;border-bottom:1px solid var(--line);}
   .wrap{max-width:1040px;margin:0 auto;}
   header .row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
-  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-light);margin-bottom:4px;}
-  .title{font-size:22px;font-weight:600;}
-  nav{display:flex;gap:8px;}
-  nav button{padding:9px 16px;border-radius:4px;border:1px solid rgba(203,169,110,.35);background:transparent;color:var(--sand);font-size:14px;cursor:pointer;}
-  nav button.active{background:var(--gold);color:var(--cream);border-color:var(--gold);}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand svg{width:30px;height:30px;color:var(--gold);flex:none;}
+  .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+  .title{font-size:20px;font-weight:400;font-family:'Cormorant Garamond',serif;letter-spacing:.02em;color:var(--cream);}
+  nav{display:flex;gap:8px;flex-wrap:wrap;}
+  nav button{padding:9px 16px;border-radius:2px;border:1px solid var(--line);background:transparent;color:var(--cream);font-size:13px;font-family:'Jost',sans-serif;cursor:pointer;letter-spacing:.02em;}
+  nav button.active{background:var(--gold);color:var(--ink);border-color:var(--gold);}
   main{max-width:1040px;margin:0 auto;padding:32px 24px 60px;}
-  .card{background:var(--cream);border:1px solid var(--line);border-radius:4px;padding:24px;}
-  .btn{padding:9px 18px;border-radius:4px;border:none;background:var(--gold);color:var(--cream);font-size:14px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
-  .btn.outline{background:transparent;border:1px solid var(--line);color:var(--charcoal-soft);}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:24px;}
+  .btn{padding:9px 18px;border-radius:2px;border:none;background:var(--gold);color:var(--ink);font-size:13.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;letter-spacing:.03em;}
+  .btn.outline{background:transparent;border:1px solid var(--line);color:var(--cream);}
   .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:24px;}
-  .filter-btn{padding:6px 14px;border-radius:4px;border:1px solid var(--line);background:var(--cream);font-size:13px;cursor:pointer;color:var(--charcoal);}
-  .filter-btn.active{background:var(--forest);color:var(--sand);border-color:var(--forest);}
+  .filter-btn{padding:6px 14px;border-radius:2px;border:1px solid var(--line);background:var(--card);font-size:12.5px;cursor:pointer;color:var(--cream);}
+  .filter-btn.active{background:var(--gold);color:var(--ink);border-color:var(--gold);}
   .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:32px;}
-  .stat{border-radius:4px;padding:18px;border:1px solid var(--line);}
-  .stat.accent{background:var(--forest);color:var(--sand);border-color:var(--forest);}
-  .stat .label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--charcoal-soft);margin-bottom:8px;}
-  .stat.accent .label{color:var(--gold-light);}
-  .stat .value{font-size:24px;font-weight:600;}
+  .stat{border-radius:4px;padding:18px;border:1px solid var(--line);background:var(--card);}
+  .stat.accent{background:var(--gold);color:var(--ink);border-color:var(--gold);}
+  .stat .label{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px;}
+  .stat.accent .label{color:rgba(14,12,10,.65);}
+  .stat .value{font-size:23px;font-weight:400;font-family:'Cormorant Garamond',serif;}
   table{width:100%;border-collapse:collapse;font-size:13.5px;}
-  th{background:var(--forest);color:var(--sand);text-align:left;padding:11px 14px;font-size:12px;font-weight:500;}
-  td{padding:10px 14px;border-top:1px solid var(--line);}
-  tr:nth-child(even) td{background:var(--sand);}
+  th{background:var(--panel);color:var(--gold-light);text-align:left;padding:11px 14px;font-size:11.5px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;}
+  td{padding:10px 14px;border-top:1px solid var(--line);color:var(--cream);}
+  tr:nth-child(even) td{background:var(--card-soft);}
   .bar-row{margin-bottom:14px;}
-  .bar-head{display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px;}
-  .bar-bg{height:8px;background:var(--sand);border-radius:4px;overflow:hidden;}
+  .bar-head{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px;}
+  .bar-bg{height:8px;background:var(--panel);border-radius:4px;overflow:hidden;}
   .bar-fill{height:100%;background:var(--gold);}
   form.entry{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:640px;}
-  form.entry label{font-size:12px;color:var(--charcoal-soft);display:block;margin-bottom:5px;}
-  form.entry input,form.entry select{width:100%;border:1px solid var(--line);border-radius:4px;padding:9px 11px;font-size:14px;background:#fff;font-family:inherit;}
+  form.entry label{font-size:11.5px;letter-spacing:.03em;color:var(--muted);display:block;margin-bottom:5px;}
+  form.entry input,form.entry select{width:100%;border:1px solid var(--line);border-radius:2px;padding:9px 11px;font-size:14px;background:var(--panel);color:var(--cream);font-family:inherit;}
+  form.entry input::placeholder{color:var(--muted);}
+  form.entry select option{background:var(--panel);color:var(--cream);}
   .full{grid-column:1/-1;}
   .error{color:var(--danger);font-size:13px;margin-bottom:10px;}
-  .empty{color:var(--charcoal-soft);font-size:14px;padding:20px 0;}
-  #gate{position:fixed;inset:0;background:var(--forest);color:var(--sand);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:50;}
-  #gate input{padding:10px 14px;border-radius:4px;border:1px solid var(--gold-light);font-size:15px;width:220px;}
-  #gate .err{color:#e8a99c;font-size:13px;height:16px;}
+  .empty{color:var(--muted);font-size:14px;padding:20px 0;}
+  #gate{position:fixed;inset:0;background:var(--ink);color:var(--cream);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:50;}
+  #gate input{padding:10px 14px;border-radius:2px;border:1px solid var(--line);background:var(--panel);color:var(--cream);font-size:15px;width:220px;font-family:'Jost',sans-serif;}
+  #gate input::placeholder{color:var(--muted);}
+  #gate .err{color:var(--danger);font-size:13px;height:16px;}
   .toolbar{display:flex;justify-content:flex-end;padding:14px 18px;border-bottom:1px solid var(--line);}
   .field-group{transition:opacity .15s ease;}
   .field-group.dimmed{opacity:.35;}
-  .field-group.dimmed input,.field-group.dimmed select{background:#EFEAE0;cursor:not-allowed;}
-  .counter-note{grid-column:1/-1;background:rgba(176,141,87,.12);border:1px solid rgba(176,141,87,.3);border-radius:4px;padding:10px 12px;font-size:12.5px;color:var(--charcoal-soft);margin-bottom:4px;}
+  .field-group.dimmed input,.field-group.dimmed select{background:var(--card-soft);cursor:not-allowed;}
+  .counter-note{grid-column:1/-1;background:rgba(201,169,110,.08);border:1px solid var(--line);border-radius:2px;padding:10px 12px;font-size:12.5px;color:var(--muted);margin-bottom:4px;}
 </style>
 </head>
 <body>
 
 <div id="gate">
+  <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:40px;height:40px;color:#c9a96e;">
+    <circle cx="22" cy="22" r="21" stroke="currentColor" stroke-width="0.8"/>
+    <g transform="translate(22,22)">
+      <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(0)"/>
+      <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(45)"/>
+      <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(90)"/>
+      <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(135)"/>
+      <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(180)"/>
+      <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(225)"/>
+      <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(270)"/>
+      <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(315)"/>
+      <circle cx="0" cy="0" r="2.5" fill="currentColor"/>
+    </g>
+  </svg>
   <div class="eyebrow">Sanvila · Staff login</div>
-  <div style="font-size:19px;font-family:Georgia,serif;">Sign in to continue</div>
+  <div style="font-size:19px;font-family:'Cormorant Garamond',serif;color:var(--cream);">Sign in to continue</div>
   <input id="gateEmail" type="email" placeholder="Email" autocomplete="username" />
   <input id="gateInput" type="password" placeholder="Password" autocomplete="current-password" />
   <button class="btn" onclick="checkGate()">Sign in</button>
@@ -72,9 +94,25 @@
 <div id="app" style="display:none;">
   <header>
     <div class="wrap row">
-      <div>
-        <div class="eyebrow">Sanvila</div>
-        <div class="title">Daily Service &amp; Sales Report</div>
+      <div class="brand">
+        <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="22" cy="22" r="21" stroke="currentColor" stroke-width="0.8"/>
+          <g transform="translate(22,22)">
+            <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(0)"/>
+            <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(45)"/>
+            <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(90)"/>
+            <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(135)"/>
+            <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(180)"/>
+            <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(225)"/>
+            <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(270)"/>
+            <ellipse cx="0" cy="-10" rx="3" ry="6" fill="none" stroke="currentColor" stroke-width="0.8" transform="rotate(315)"/>
+            <circle cx="0" cy="0" r="2.5" fill="currentColor"/>
+          </g>
+        </svg>
+        <div>
+          <div class="eyebrow">Sanvila</div>
+          <div class="title">Daily Service &amp; Sales Report</div>
+        </div>
       </div>
       <nav>
         <button onclick="goBack()" title="Back" aria-label="Back" style="padding:9px 12px;">&#8592;</button>
@@ -252,7 +290,7 @@ function renderReport(){
     <td style="text-align:right;">${money(r.cash)}</td><td style="text-align:right;">${money(r.upi)}</td>
     <td style="text-align:right;">${money(r.counterPay)}</td>
     <td style="text-align:right;font-weight:600;">${money(r.revenue)}</td></tr>`).join('');
-  const totalRow = byEmployee.length ? `<tr style="background:var(--forest);color:var(--sand);font-weight:600;">
+  const totalRow = byEmployee.length ? `<tr style="background:var(--gold);color:var(--ink);font-weight:600;">
     <td colspan="2">Total</td><td style="text-align:right;">${totals.count}</td>
     <td style="text-align:right;">${money(totals.cash)}</td><td style="text-align:right;">${money(totals.upi)}</td>
     <td style="text-align:right;">${money(totals.counterPay)}</td>
@@ -496,7 +534,7 @@ function flashMessage(msg){
   if(!el){
     el = document.createElement('div');
     el.id = 'flashMsg';
-    el.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--forest);color:var(--sand);padding:10px 20px;border-radius:4px;font-size:13px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.25);';
+    el.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--ink);padding:10px 20px;border-radius:2px;font-size:13px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.5);';
     document.body.appendChild(el);
   }
   el.textContent = msg;
