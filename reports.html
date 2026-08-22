@@ -121,6 +121,7 @@
         <button id="tab-add" onclick="setTab('add')">Add Entry</button>
         <button id="tab-all" onclick="setTab('all')">All Entries</button>
         <button id="tab-counter" onclick="setTab('counter')">Counter Payments</button>
+        <button id="tab-tryon" onclick="setTab('tryon')">Hair Try-On</button>
         <button onclick="signOut()" style="border-color:rgba(203,169,110,.35);">Sign out</button>
       </nav>
     </div>
@@ -242,11 +243,12 @@ function computeReport(){
 }
 
 function render(){
-  ['report','add','all','counter'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active', t===tab));
+  ['report','add','all','counter','tryon'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active', t===tab));
   const main = document.getElementById('main');
   if(tab==='report') main.innerHTML = renderReport();
   else if(tab==='add'){ main.innerHTML = renderAdd(); toggleCounterMode(); }
   else if(tab==='counter') main.innerHTML = renderCounter();
+  else if(tab==='tryon') main.innerHTML = renderTryOn();
   else main.innerHTML = renderAll();
 }
 
@@ -484,6 +486,93 @@ function downloadCounter(){
   const headers = ['Date','Employee','Role','Amount'];
   const rows = counterEntries.map(e=>[e.date, e.employee, e.role, e.amount]);
   downloadCSV(`sanvila-counter-payments-${todayISO()}.csv`, toCSV(headers, rows));
+}
+
+function renderTryOn(){
+  return `
+    <div class="card" style="max-width:640px;">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:22px;margin:0 0 6px;color:var(--cream);">Hairstyle Preview</h2>
+      <p style="color:var(--muted);font-size:13px;margin:0 0 22px;line-height:1.6;">
+        Upload the customer's photo, then either upload a reference hairstyle photo, describe the style
+        in words, or both. We'll generate a realistic preview of the customer with that hairstyle.
+      </p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px;">
+        <div class="field-group">
+          <label style="font-size:11.5px;color:var(--muted);display:block;margin-bottom:6px;">Customer photo *</label>
+          <input type="file" accept="image/*" id="tryon_target" onchange="previewImg('tryon_target','preview_target')">
+          <img id="preview_target" style="margin-top:10px;max-width:100%;border-radius:4px;border:1px solid var(--line);display:none;">
+        </div>
+        <div class="field-group">
+          <label style="font-size:11.5px;color:var(--muted);display:block;margin-bottom:6px;">Reference hairstyle photo (optional)</label>
+          <input type="file" accept="image/*" id="tryon_source" onchange="previewImg('tryon_source','preview_source')">
+          <img id="preview_source" style="margin-top:10px;max-width:100%;border-radius:4px;border:1px solid var(--line);display:none;">
+        </div>
+      </div>
+      <div class="field-group" style="margin-bottom:20px;">
+        <label style="font-size:11.5px;color:var(--muted);display:block;margin-bottom:6px;">Describe the hairstyle (optional, works with or without a reference photo)</label>
+        <input type="text" id="tryon_note" placeholder="e.g. shoulder-length layered bob, soft waves">
+      </div>
+      <button class="btn" onclick="startTryOn()" id="tryon_btn">Generate Preview</button>
+      <div id="tryon_status" style="margin-top:16px;font-size:13px;color:var(--muted);"></div>
+      <div id="tryon_result" style="margin-top:20px;"></div>
+      <p style="color:var(--muted);font-size:11.5px;margin-top:24px;line-height:1.6;">
+        Only use a customer's photo with their consent. Photos are sent directly to Google's Gemini API
+        for processing and are not stored by this app.
+      </p>
+    </div>`;
+}
+
+function previewImg(inputId, imgId){
+  const input = document.getElementById(inputId);
+  const img = document.getElementById(imgId);
+  if(input.files && input.files[0]){
+    img.src = URL.createObjectURL(input.files[0]);
+    img.style.display = 'block';
+  }
+}
+
+function fileToBase64(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function startTryOn(){
+  const targetFile = document.getElementById('tryon_target').files[0];
+  const sourceFile = document.getElementById('tryon_source').files[0];
+  const styleNote = document.getElementById('tryon_note').value.trim();
+  const statusEl = document.getElementById('tryon_status');
+  const resultEl = document.getElementById('tryon_result');
+  const btn = document.getElementById('tryon_btn');
+  resultEl.innerHTML = '';
+  if(!targetFile){ statusEl.textContent = 'Please upload the customer photo.'; return; }
+  if(!sourceFile && !styleNote){ statusEl.textContent = 'Add a reference photo, a style description, or both.'; return; }
+  btn.disabled = true;
+  try{
+    statusEl.textContent = 'Generating preview… this usually takes a few seconds.';
+    const targetImage = await fileToBase64(targetFile);
+    const payload = { targetImage, targetMimeType: targetFile.type, styleNote };
+    if(sourceFile){
+      payload.referenceImage = await fileToBase64(sourceFile);
+      payload.referenceMimeType = sourceFile.type;
+    }
+    const r = await fetch('/api/tryon', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await r.json();
+    if(!r.ok) throw new Error(data.error || 'Generation failed');
+    statusEl.textContent = 'Done!';
+    const src = `data:${data.mimeType};base64,${data.image}`;
+    resultEl.innerHTML = `<img src="${src}" style="max-width:100%;border-radius:4px;border:1px solid var(--line);"><div style="margin-top:10px;"><a class="btn outline" href="${src}" download="sanvila-hairstyle-preview.png" style="text-decoration:none;">Download</a></div>`;
+  } catch(err){
+    statusEl.textContent = 'Error: ' + err.message;
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 async function submitEntry(ev){
