@@ -200,6 +200,175 @@
     /* ── NAIL SECTION rename ── */
     /* already in service cards */
 
+    /* ── PRODUCTS NAV BADGE ── */
+    .nav-new-badge {
+      display: inline-block;
+      font-size: 0.55rem;
+      letter-spacing: 0.1em;
+      font-family: 'Jost', sans-serif;
+      color: #0e0c0a;
+      background: #c9a96e;
+      padding: 1px 6px;
+      border-radius: 10px;
+      margin-left: 6px;
+      vertical-align: middle;
+      animation: badgeGlow 1.8s ease-in-out infinite;
+    }
+    @keyframes badgeGlow {
+      0%,100% { box-shadow: 0 0 0 0 rgba(201,169,110,0.5); }
+      50% { box-shadow: 0 0 0 4px rgba(201,169,110,0); }
+    }
+
+    /* ── PRODUCTS SECTION ── */
+    .products.section {
+      background: #161310;
+      position: relative;
+    }
+    .products.section::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,169,110,0.3), transparent);
+    }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 24px;
+      margin-top: 60px;
+    }
+    .product-card {
+      background: rgba(245,240,232,0.03);
+      border: 1px solid rgba(201,169,110,0.2);
+      border-radius: 4px;
+      padding: 36px 20px;
+      text-align: center;
+      transition: transform 0.35s ease, border-color 0.35s ease, background 0.35s ease;
+    }
+    .product-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(201,169,110,0.6);
+      background: rgba(201,169,110,0.06);
+    }
+    .product-icon {
+      width: 48px; height: 48px;
+      margin: 0 auto 18px;
+    }
+    .product-card h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 400;
+      color: #f5f0e8;
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+    }
+    .product-card p {
+      font-family: 'Jost', sans-serif;
+      font-size: 0.78rem;
+      color: #8a7d6a;
+      line-height: 1.6;
+    }
+    .products-note {
+      text-align: center;
+      margin-top: 48px;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.85rem;
+      color: #8a7d6a;
+      letter-spacing: 0.02em;
+    }
+    .products-note a {
+      color: #c9a96e;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    @media (max-width: 992px) {
+      .products-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .products-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ── PRODUCTS ANNOUNCEMENT OVERLAY ── */
+    .products-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(8,7,5,0.86);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; visibility: hidden;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    .products-overlay.is-visible {
+      opacity: 1; visibility: visible;
+    }
+    .products-overlay-card {
+      position: relative;
+      max-width: 480px;
+      width: 100%;
+      background: linear-gradient(160deg, #1b1712 0%, #100e0b 100%);
+      border: 1px solid rgba(201,169,110,0.35);
+      border-radius: 6px;
+      padding: 44px 36px 36px;
+      text-align: center;
+      transform: translateY(16px) scale(0.97);
+      transition: transform 0.4s ease;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    }
+    .products-overlay.is-visible .products-overlay-card {
+      transform: translateY(0) scale(1);
+    }
+    .products-overlay-close {
+      position: absolute; top: 14px; right: 16px;
+      background: none; border: none; cursor: pointer;
+      color: #8a7d6a;
+      font-size: 1.4rem;
+      line-height: 1;
+      transition: color 0.2s ease;
+    }
+    .products-overlay-close:hover { color: #c9a96e; }
+    .products-overlay-eyebrow {
+      font-family: 'Jost', sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.25em;
+      color: #c9a96e;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .products-overlay-card h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem;
+      font-weight: 400;
+      color: #f5f0e8;
+      margin-bottom: 14px;
+    }
+    .products-overlay-card h3 em {
+      color: #c9a96e;
+      font-style: italic;
+    }
+    .products-overlay-card p {
+      font-family: 'Jost', sans-serif;
+      font-size: 0.85rem;
+      color: #8a7d6a;
+      line-height: 1.7;
+      margin-bottom: 22px;
+    }
+    .products-overlay-tags {
+      display: flex; flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .products-overlay-tags span {
+      font-family: 'Jost', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
+      color: #e2c78a;
+      border: 1px solid rgba(201,169,110,0.35);
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+    .products-overlay-actions {
+      display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+    }
+
     @media (max-width: 768px) {
       .booking-steps { grid-template-columns: repeat(2, 1fr); gap: 40px; }
       .booking-steps::before { display: none; }
@@ -217,6 +386,27 @@
     <div class="ob-dot"></div>
     <span>✦ <strong>Now Open</strong> — Sanvila Unisex Saloon & Spa · 141/1 Regent Colony, Kolkata · Walk in or book your visit today!</span>
     <div class="ob-dot"></div>
+  </div>
+
+  <!-- Products Announcement Overlay -->
+  <div class="products-overlay" id="productsOverlay">
+    <div class="products-overlay-card">
+      <button class="products-overlay-close" id="productsOverlayClose" aria-label="Close">&times;</button>
+      <p class="products-overlay-eyebrow">✦ Now In Store ✦</p>
+      <h3>Shop Our <em>Hair Care</em> Range</h3>
+      <p>Bring the salon experience home with our new professional product line, now available at Sanvila.</p>
+      <div class="products-overlay-tags">
+        <span>Shampoo</span>
+        <span>Conditioner</span>
+        <span>Hair Mask</span>
+        <span>Serum</span>
+        <span>Hair Colour</span>
+      </div>
+      <div class="products-overlay-actions">
+        <a href="#products" class="btn btn-gold" id="productsOverlayCta">View Products</a>
+        <button class="btn btn-outline" id="productsOverlayDismiss">Maybe Later</button>
+      </div>
+    </div>
   </div>
 
   <!-- Loader -->
@@ -267,6 +457,7 @@
         <li><a href="#home">Home</a></li>
         <li><a href="#about">About</a></li>
         <li><a href="#services">Services</a></li>
+        <li><a href="#products">Products<span class="nav-new-badge">New</span></a></li>
         <li><a href="#gallery">Gallery</a></li>
         <li><a href="#booking">Book</a></li>
         <li><a href="#contact">Contact</a></li>
@@ -282,6 +473,7 @@
         <li><a href="#home" class="mobile-link">Home</a></li>
         <li><a href="#about" class="mobile-link">About</a></li>
         <li><a href="#services" class="mobile-link">Services</a></li>
+        <li><a href="#products" class="mobile-link">Products<span class="nav-new-badge">New</span></a></li>
         <li><a href="#gallery" class="mobile-link">Gallery</a></li>
         <li><a href="#booking" class="mobile-link">Book</a></li>
         <li><a href="#contact" class="mobile-link">Contact</a></li>
@@ -496,6 +688,61 @@
         </div>
 
       </div>
+    </div>
+  </section>
+
+  <!-- Products -->
+  <section class="products section" id="products">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-eyebrow">Now Available In-Store</p>
+        <h2 class="section-title">Take The <em>Salon</em> Home</h2>
+        <p class="section-subtitle">We now stock a premium range of professional hair care products — ask our stylists in-store or reach out to order.</p>
+      </div>
+      <div class="products-grid">
+
+        <div class="product-card reveal">
+          <div class="product-icon">
+            <svg viewBox="0 0 48 48" fill="none"><path d="M18 10h12v6l3 3v19a2 2 0 01-2 2H17a2 2 0 01-2-2V19l3-3v-6z" stroke="#c9a96e" stroke-width="1.2"/><path d="M18 22h12" stroke="#c9a96e" stroke-width="1.2"/></svg>
+          </div>
+          <h3>Shampoo</h3>
+          <p>Gentle cleansing formulas for every hair type.</p>
+        </div>
+
+        <div class="product-card reveal">
+          <div class="product-icon">
+            <svg viewBox="0 0 48 48" fill="none"><path d="M20 8h8v5l4 4v20a2 2 0 01-2 2H18a2 2 0 01-2-2V17l4-4V8z" stroke="#c9a96e" stroke-width="1.2"/><circle cx="24" cy="27" r="4" stroke="#c9a96e" stroke-width="1.2"/></svg>
+          </div>
+          <h3>Conditioner</h3>
+          <p>Deep nourishment for soft, manageable hair.</p>
+        </div>
+
+        <div class="product-card reveal">
+          <div class="product-icon">
+            <svg viewBox="0 0 48 48" fill="none"><ellipse cx="24" cy="24" rx="14" ry="16" stroke="#c9a96e" stroke-width="1.2"/><path d="M18 20c2-2 4-2 6 0s4 2 6 0" stroke="#c9a96e" stroke-width="1.2"/></svg>
+          </div>
+          <h3>Hair Mask</h3>
+          <p>Intensive weekly treatment for damaged strands.</p>
+        </div>
+
+        <div class="product-card reveal">
+          <div class="product-icon">
+            <svg viewBox="0 0 48 48" fill="none"><path d="M22 6h4l2 8-4 4-4-4 2-8z" stroke="#c9a96e" stroke-width="1.2"/><path d="M20 18h8v18a4 4 0 01-8 0V18z" stroke="#c9a96e" stroke-width="1.2"/></svg>
+          </div>
+          <h3>Serum</h3>
+          <p>Lightweight shine and frizz control, all day long.</p>
+        </div>
+
+        <div class="product-card reveal">
+          <div class="product-icon">
+            <svg viewBox="0 0 48 48" fill="none"><path d="M24 6c-4 4-10 12-10 20a10 10 0 0020 0c0-8-6-16-10-20z" stroke="#c9a96e" stroke-width="1.2"/></svg>
+          </div>
+          <h3>Hair Colour</h3>
+          <p>Vibrant, long-lasting shades for every style.</p>
+        </div>
+
+      </div>
+      <p class="products-note">Available for purchase at our Kolkata location — <a href="#contact">get in touch</a> or <a href="https://wa.me/917439509302" target="_blank">WhatsApp us</a> to check stock.</p>
     </div>
   </section>
 
@@ -758,6 +1005,7 @@
         <a href="#home">Home</a>
         <a href="#about">About</a>
         <a href="#services">Services</a>
+        <a href="#products">Products</a>
         <a href="#gallery">Gallery</a>
         <a href="#booking">Book</a>
         <a href="#contact">Contact</a>
@@ -780,5 +1028,34 @@
   </footer>
 
   <script src="js/main.js"></script>
+  <script>
+    (function () {
+      var overlay = document.getElementById('productsOverlay');
+      if (!overlay) return;
+      var closeBtn = document.getElementById('productsOverlayClose');
+      var dismissBtn = document.getElementById('productsOverlayDismiss');
+      var ctaBtn = document.getElementById('productsOverlayCta');
+      var STORAGE_KEY = 'sanvilaProductsOverlaySeen';
+
+      function hideOverlay() {
+        overlay.classList.remove('is-visible');
+        try { sessionStorage.setItem(STORAGE_KEY, '1'); } catch (e) {}
+      }
+
+      var alreadySeen = false;
+      try { alreadySeen = sessionStorage.getItem(STORAGE_KEY) === '1'; } catch (e) {}
+
+      if (!alreadySeen) {
+        setTimeout(function () { overlay.classList.add('is-visible'); }, 1200);
+      }
+
+      closeBtn.addEventListener('click', hideOverlay);
+      dismissBtn.addEventListener('click', hideOverlay);
+      ctaBtn.addEventListener('click', hideOverlay);
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) hideOverlay();
+      });
+    })();
+  </script>
 </body>
 </html>
